@@ -17,5 +17,8 @@
     "oxc-parser": "^0.142.0",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.1.4"
+  },
+  "dependencies": {
+    "libphonenumber-js": "^1.13.11"
   }
 }

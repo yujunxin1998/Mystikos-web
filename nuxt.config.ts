@@ -1,17 +1,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-23',
   devtools: { enabled: true },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/companion.css'],
   runtimeConfig: {
     // Override with NUXT_MYSTIKOS_API_BASE in deployment environments.
-    mystikosApiBase: 'http://116.62.218.227:8099',
-      public: {
-        // Configure Discord OAuth using these variables in deployment environments.
-        discordClientId: '',
-        discordRedirectUri: '',
-        // Optional full authorization URL. When set, it overrides the generated URL.
-        discordAuthorizeUrl: ''
-      }
+    // Required. Configure with NUXT_MYSTIKOS_API_BASE; do not bake deployment addresses into the bundle.
+    mystikosApiBase: ''
   },
   app: {
     head: {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { t } = useMystikos()
-const { loginPassword, loginWithCode, sendCode: requestCode, register, oauthLogin } = useDemoAuth()
-const config = useRuntimeConfig()
+const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
 const route = useRoute()
 
 const mode = ref<'login' | 'register'>('login')
@@ -61,32 +60,22 @@ const submitRegister = async () => {
 }
 const discordLogin = async () => {
   resetFeedback()
-  const state = crypto.randomUUID()
-  sessionStorage.setItem('mystikos_discord_oauth_state', state)
-  if (config.public.discordAuthorizeUrl) {
-    const authorizationUrl = new URL(config.public.discordAuthorizeUrl)
-    authorizationUrl.searchParams.set('state', state)
-    window.location.assign(authorizationUrl.toString())
-    return
-  }
-  if (!config.public.discordClientId || !config.public.discordRedirectUri) { error.value = t('auth.discordConfig'); return }
-  const authorizationUrl = new URL('https://discord.com/api/oauth2/authorize')
-  authorizationUrl.searchParams.set('client_id', config.public.discordClientId)
-  authorizationUrl.searchParams.set('redirect_uri', config.public.discordRedirectUri)
-  authorizationUrl.searchParams.set('response_type', 'code')
-  authorizationUrl.searchParams.set('scope', 'identify email')
-  authorizationUrl.searchParams.set('state', state)
-  window.location.assign(authorizationUrl.toString())
+  window.location.assign(`/api/oauth/discord/start?nonce=${crypto.randomUUID()}`)
 }
 onMounted(async () => {
-  const codeFromProvider = typeof route.query.code === 'string' ? route.query.code : ''
-  const provider = typeof route.query.provider === 'string' ? route.query.provider : ''
-  if (provider === 'discord' && codeFromProvider) {
-    const expectedState = sessionStorage.getItem('mystikos_discord_oauth_state')
-    const returnedState = typeof route.query.state === 'string' ? route.query.state : ''
-    if (!expectedState || returnedState !== expectedState) { error.value = t('auth.discordState'); return }
-    sessionStorage.removeItem('mystikos_discord_oauth_state')
-    try { await oauthLogin('discord', codeFromProvider); await finish(t('auth.successLogin')) } catch (cause) { error.value = cause instanceof Error ? cause.message : t('auth.required') }
+  if (route.query.oauth_error) {
+    error.value = 'Discord login service is unavailable. Please check the backend configuration and try again.'
+    return
+  }
+  const ticket = typeof route.query.oauth_ticket === 'string' ? route.query.oauth_ticket : ''
+  if (ticket) {
+    try {
+      await redeemOAuthTicket(ticket)
+      await navigateTo('/auth', { replace: true })
+      await finish(t('auth.successLogin'))
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : t('auth.required')
+    }
   }
 })
 </script>
@@ -148,10 +137,29 @@ onMounted(async () => {
         <p v-if="error" class="auth-feedback error" role="alert">{{ error }}</p>
         <p v-if="success" class="auth-feedback success" role="status">✦ {{ success }}</p>
         <div class="auth-divider"><span>{{ t('auth.or') }}</span></div>
-        <button class="discord-button" @click="discordLogin"><b>⌁</b>{{ t('auth.discord') }}</button>
+        <button class="discord-button" type="button" @click="discordLogin">
+          <svg class="discord-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.618-1.25.077.077 0 0 0-.078-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.028C.533 9.046-.319 13.58.099 18.058a.082.082 0 0 0 .031.056c2.053 1.508 4.041 2.421 5.993 3.03a.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.042-.106 12.3 12.3 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029c1.961-.608 3.95-1.522 6.002-3.03a.077.077 0 0 0 .031-.055c.501-5.177-.838-9.674-3.548-13.66a.061.061 0 0 0-.031-.029ZM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.419s.956-2.419 2.157-2.419c1.211 0 2.176 1.095 2.157 2.419 0 1.333-.956 2.419-2.157 2.419Zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419s.955-2.419 2.157-2.419c1.211 0 2.176 1.095 2.157 2.419 0 1.333-.946 2.419-2.157 2.419Z" />
+          </svg>
+          {{ t('auth.discord') }}
+        </button>
         <p class="discord-note">{{ t('auth.discordNote') }}</p>
         <p class="auth-demo">✦ {{ t('auth.demo') }}</p>
       </div>
     </main>
   </section>
 </template>
+
+<style scoped>
+.discord-button:hover {
+  border-color: #5865f2;
+  background: rgba(88, 101, 242, 0.08);
+}
+
+.discord-icon {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  fill: #5865f2;
+}
+</style>

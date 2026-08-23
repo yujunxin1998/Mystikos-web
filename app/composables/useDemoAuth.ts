@@ -9,6 +9,7 @@ export function useDemoAuth() {
   const refreshToken = useCookie<string | null>('mystikos_refresh_token', { sameSite: 'lax' })
   const authenticated = useState('mystikos-authenticated', () => Boolean(accessToken.value))
   const userName = useState('mystikos-user-name', () => '')
+  const userAvatarUrl = useState('mystikos-user-avatar-url', () => '')
 
   const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
     const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, { ...options, ignoreResponseError: true })
@@ -39,10 +40,14 @@ export function useDemoAuth() {
     const tokens = await request<TokenResponse>(`auth/oauth/${provider}/login`, { method: 'POST', body: { code } })
     storeTokens(tokens, `${provider} traveler`)
   }
+  const redeemOAuthTicket = async (ticket: string) => {
+    const tokens = await request<TokenResponse>('auth/oauth/tickets', { method: 'POST', body: { ticket } })
+    storeTokens(tokens, 'Discord traveler')
+  }
   const logout = async () => {
     try { if (accessToken.value) await request('auth/logout', { method: 'POST', headers: { authorization: `Bearer ${accessToken.value}` } }) } catch { /* Local cleanup is still required. */ }
-    accessToken.value = null; refreshToken.value = null; authenticated.value = false; userName.value = ''
+    accessToken.value = null; refreshToken.value = null; authenticated.value = false; userName.value = ''; userAvatarUrl.value = ''
   }
 
-  return { authenticated, userName, accessToken, loginPassword, loginWithCode, sendCode, register, oauthLogin, logout }
+  return { authenticated, userName, userAvatarUrl, accessToken, loginPassword, loginWithCode, sendCode, register, oauthLogin, redeemOAuthTicket, logout }
 }
