@@ -937,8 +937,20 @@
   background: color-mix(in srgb, #d98293 24%, var(--paper));
 }
 
-.profile-contact-section {
+.profile-contact-section,
+.profile-overview-contact {
   scroll-margin-top: 28px;
+}
+
+.profile-overview-contact {
+  position: relative;
+  padding: 34px 38px 40px;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--night) 2%, var(--card));
+}
+
+.profile-overview-contact .contact-verification-panel {
+  margin-top: 0;
 }
 
 .contact-section-heading {
@@ -990,6 +1002,16 @@
 
 .profile-contact-section .security-ready {
   padding: 19px 22px;
+}
+
+@media (max-width: 800px) {
+  .profile-overview-contact {
+    padding: 28px 22px 30px;
+  }
+
+  .profile-overview-contact .contact-readiness {
+    align-self: flex-start;
+  }
 }
 
 .eligibility-dialog-backdrop {

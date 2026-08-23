@@ -4,6 +4,7 @@ import celestialArtwork from '~/assets/images/auth-celestial-editorial-v2.png'
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
 const route = useRoute()
+const config = useRuntimeConfig()
 
 const mode = ref<'login' | 'register'>('login')
 const method = ref<'password' | 'email'>('password')
@@ -62,7 +63,7 @@ const submitRegister = async () => {
 }
 const discordLogin = async () => {
   resetFeedback()
-  window.location.assign(`/api/oauth/discord/start?nonce=${crypto.randomUUID()}`)
+  window.location.assign(`${config.app.baseURL}api/oauth/discord/start`)
 }
 onMounted(async () => {
   if (route.query.oauth_error) {

@@ -177,6 +177,13 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
           <div class="profile-tags"><span v-for="tag in profile.tags" :key="tag.id">{{ tag.label }}</span><span v-if="!profile.tags.length">{{ t('profile.noTags') }}</span></div>
           <dl><div><dt>{{ t('profile.account') }}</dt><dd>{{ accountDisplay }}</dd></div><div><dt>{{ t('profile.region') }}</dt><dd>{{ regionName }}</dd></div><div><dt>{{ t('profile.birthDate') }}</dt><dd>{{ profile.birthDate || t('profile.notSet') }}</dd></div><div><dt>{{ t('profile.rankingPrivacy') }}</dt><dd>{{ profile.privacyAnonymous ? t('profile.anonymousOn') : t('profile.anonymousOff') }}</dd></div></dl>
         </div>
+        <div id="contact-verification" class="profile-overview-contact" aria-labelledby="contact-verification-title">
+          <div class="profile-section-heading contact-section-heading">
+            <div><p class="eyebrow"><span />{{ companionCopy.contactEyebrow }}</p><h2 id="contact-verification-title">{{ companionCopy.contactTitle }}</h2><p>{{ companionCopy.contactBody }}</p></div>
+            <span class="contact-readiness" :class="{ ready: contactCompletion?.companionApplicationAllowed }"><i>{{ contactCompletion?.companionApplicationAllowed ? '✓' : '!' }}</i>{{ contactCompletion?.companionApplicationAllowed ? companionCopy.contactReady : companionCopy.contactPending }}</span>
+          </div>
+          <ContactVerificationPanel @state="handleContactState" />
+        </div>
       </template>
       <p v-if="feedback" class="profile-feedback success" role="status">{{ feedback }}</p><p v-if="error" class="profile-feedback error" role="alert">{{ error }}</p>
     </section>
@@ -195,14 +202,6 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
       <div class="companion-identity-orbit" :class="companionApplication?.status.toLowerCase() || 'member'" aria-hidden="true">
         <i /><span>{{ companionApplication ? companionStatus : 'MEMBER' }}</span><small>{{ companionApplication?.id || 'COMPANION PATH' }}</small>
       </div>
-    </section>
-
-    <section id="contact-verification" class="profile-section profile-contact-section" aria-labelledby="contact-verification-title">
-      <div class="profile-section-heading contact-section-heading">
-        <div><p class="eyebrow"><span />{{ companionCopy.contactEyebrow }}</p><h2 id="contact-verification-title">{{ companionCopy.contactTitle }}</h2><p>{{ companionCopy.contactBody }}</p></div>
-        <span class="contact-readiness" :class="{ ready: contactCompletion?.companionApplicationAllowed }"><i>{{ contactCompletion?.companionApplicationAllowed ? '✓' : '!' }}</i>{{ contactCompletion?.companionApplicationAllowed ? companionCopy.contactReady : companionCopy.contactPending }}</span>
-      </div>
-      <ContactVerificationPanel @state="handleContactState" />
     </section>
 
     <section class="profile-section"><div class="profile-section-heading"><div><p class="eyebrow"><span />{{ t('profile.gamesEyebrow') }}</p><h2>{{ t('profile.games') }}</h2></div><span>{{ t('profile.totalTime') }} <b>87h</b></span></div><div class="game-grid"><article v-for="game in games" :key="game.name" class="game-card" :style="{ '--game-accent': game.color }"><span class="game-short">{{ game.short }}</span><div><h3>{{ game.name }}</h3><p>{{ game.rank }}</p></div><strong>{{ game.hours }}</strong></article></div></section>
