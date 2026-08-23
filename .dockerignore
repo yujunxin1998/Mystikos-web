@@ -1,0 +1,9 @@
+node_modules
+.nuxt
+.output
+.git
+.dev-server.log
+.dev-server.error.log
+npm-debug.log*
+*.log
+.env
