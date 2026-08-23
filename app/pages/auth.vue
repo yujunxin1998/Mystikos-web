@@ -2,6 +2,7 @@
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
 const route = useRoute()
+const celestialArtwork = '/images/auth-celestial-orb.png'
 
 const mode = ref<'login' | 'register'>('login')
 const method = ref<'password' | 'email'>('password')
@@ -84,7 +85,7 @@ onMounted(async () => {
   <section class="auth-page">
     <aside class="auth-art" aria-hidden="true">
       <NuxtLink to="/" class="auth-brand"><BrandLogo /></NuxtLink>
-      <div class="auth-orbits"><i class="auth-orbit-one" /><i class="auth-orbit-two" /><i class="auth-orbit-three" /><span class="auth-star star-one">✦</span><span class="auth-star star-two">✧</span><span class="auth-star star-three">✦</span><div class="auth-moon"><span>☾</span></div></div>
+      <div class="auth-celestial" aria-hidden="true"><img :src="celestialArtwork" alt="" /><span class="celestial-glow" /></div>
       <p>“The best games leave a little light behind.”</p>
       <div class="auth-art-footer"><span>✦</span><span>EST. IN THE CONSTELLATION</span></div>
     </aside>
