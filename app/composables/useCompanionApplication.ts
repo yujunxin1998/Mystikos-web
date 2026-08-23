@@ -1,16 +1,19 @@
-import type { UserProfile } from '~/composables/useProfileApi'
+import type { Gender } from '~/composables/useProfileApi'
 
 export type CompanionApplicationStatus = 'PENDING' | 'ASSESSING' | 'APPROVED' | 'REJECTED'
 export type CompanionContactType = 'PHONE' | 'EMAIL'
 
 export type CompanionApplicationDraft = {
   applicantName: string
+  gameNickname: string
   regionCode: string
   introduction: string
   tagIds: number[]
   contactType: CompanionContactType
   contactValue: string
   phoneCountry: string
+  gender: Gender | null
+  birthDate: string | null
 }
 
 export type CompanionApplication = CompanionApplicationDraft & {
@@ -33,31 +36,69 @@ export type AccountCompletion = {
   companionApplicationAllowed: boolean
 }
 
-type ApiResponse<T> = { code: number; message?: string; data: T | null }
-
-const APPLICATION_KEY = 'mystikos_companion_application_v1'
-const ACCOUNT_KEY = 'mystikos_companion_account_completion_v1'
-const DEV_CODE = '246810'
-
-const readStored = <T>(key: string): T | null => {
-  if (!import.meta.client) return null
-  try {
-    const value = localStorage.getItem(key)
-    return value ? JSON.parse(value) as T : null
-  } catch {
-    return null
-  }
+type BackendApplicationStatus = 'SUBMITTED' | 'IN_ASSESSMENT' | 'APPROVED' | 'REJECTED'
+type BackendCompanionApplication = {
+  id: number | string
+  applicantNickname: string | null
+  applicantPhone: string | null
+  applicantEmail: string | null
+  applicantRegionCode: string | null
+  realName: string
+  gender: Gender | null
+  birthDate: string | null
+  selfIntro: string | null
+  gameNickname: string
+  tags: { id: number; label: string }[]
+  contactCountryCode: string | null
+  contactPhone: string | null
+  contactEmail: string | null
+  status: BackendApplicationStatus
+  reviewerId: number | null
+  reviewerNickname: string | null
+  reviewResult: string | null
+  reviewComment: string | null
+  reviewedAt: string | null
+  createdAt: string
 }
 
-const writeStored = (key: string, value: unknown) => {
-  if (import.meta.client) localStorage.setItem(key, JSON.stringify(value))
+type ApiResponse<T> = { code: number; message?: string; data: T | null }
+
+const statusFromBackend = (status: BackendApplicationStatus): CompanionApplicationStatus => {
+  if (status === 'SUBMITTED') return 'PENDING'
+  if (status === 'IN_ASSESSMENT') return 'ASSESSING'
+  return status
+}
+
+const fromBackend = (source: BackendCompanionApplication): CompanionApplication => {
+  const phone = source.contactPhone
+    ? `${source.contactCountryCode || ''}${source.contactPhone}`
+    : ''
+  return {
+    id: String(source.id),
+    applicantName: source.realName || source.applicantNickname || '',
+    gameNickname: source.gameNickname || '',
+    regionCode: source.applicantRegionCode || '',
+    introduction: source.selfIntro || '',
+    tagIds: source.tags.map(tag => tag.id),
+    contactType: source.contactEmail ? 'EMAIL' : 'PHONE',
+    contactValue: source.contactEmail || phone,
+    phoneCountry: source.contactCountryCode || '',
+    gender: source.gender,
+    birthDate: source.birthDate,
+    status: statusFromBackend(source.status),
+    gameTags: source.tags,
+    submittedAt: source.createdAt,
+    updatedAt: source.reviewedAt || source.createdAt,
+    assessor: source.reviewerId ? { userId: source.reviewerId, name: source.reviewerNickname || String(source.reviewerId) } : null,
+    assessmentResult: source.reviewResult,
+    reviewOpinion: source.reviewComment
+  }
 }
 
 export function useCompanionApplication() {
   const { accessToken } = useDemoAuth()
   const application = useState<CompanionApplication | null>('companion-application', () => null)
   const accountCompletion = useState<AccountCompletion | null>('companion-account-completion', () => null)
-  const prototypeMode = import.meta.dev
 
   const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
     const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
@@ -70,92 +111,52 @@ export function useCompanionApplication() {
   }
 
   const loadMyApplication = async () => {
-    if (prototypeMode) {
-      application.value = readStored<CompanionApplication>(APPLICATION_KEY)
-      return application.value
-    }
-    application.value = await request<CompanionApplication | null>('companion-applications/me')
+    const source = await request<BackendCompanionApplication | null>('companion-applications/me')
+    application.value = source ? fromBackend(source) : null
     return application.value
   }
 
-  const submitApplication = async (draft: CompanionApplicationDraft, gameTags: { id: number; label: string }[]) => {
-    if (!prototypeMode) {
-      application.value = await request<CompanionApplication>('companion-applications', { method: 'POST', body: draft })
-      return application.value
-    }
-    const now = new Date().toISOString()
-    application.value = {
-      ...draft,
-      id: `MK-CA-${Date.now().toString().slice(-8)}`,
-      status: 'PENDING',
-      gameTags,
-      submittedAt: now,
-      updatedAt: now,
-      assessor: null,
-      assessmentResult: null,
-      reviewOpinion: null
-    }
-    writeStored(APPLICATION_KEY, application.value)
-    return application.value
+  const submitApplication = async (draft: CompanionApplicationDraft) => {
+    await request<number | string>('companion-applications', {
+      method: 'POST',
+      body: {
+        realName: draft.applicantName,
+        gender: draft.gender || 'UNDISCLOSED',
+        birthDate: draft.birthDate || null,
+        selfIntro: draft.introduction,
+        gameNickname: draft.gameNickname,
+        gameRankProofObjectKey: null,
+        tagIds: draft.tagIds,
+        contactCountryCode: draft.contactType === 'PHONE' ? draft.phoneCountry : null,
+        contactPhone: draft.contactType === 'PHONE' ? draft.contactValue : null,
+        contactEmail: draft.contactType === 'EMAIL' ? draft.contactValue : null
+      }
+    })
+    const created = await loadMyApplication()
+    if (!created) throw new Error('The application was submitted but could not be loaded')
+    return created
   }
 
-  const loadAccountCompletion = async (profile: UserProfile) => {
-    if (!prototypeMode) {
-      accountCompletion.value = await request<AccountCompletion>('profile/me/companion-readiness')
-      return accountCompletion.value
-    }
-    const stored = readStored<AccountCompletion>(ACCOUNT_KEY)
-    const oauthBound = stored?.oauthBound ?? (!profile.email && !profile.phone)
-    const email = stored?.email || profile.email || ''
-    const phone = stored?.phone || profile.phone || ''
-    const emailVerified = stored?.emailVerified ?? Boolean(profile.email)
-    const phoneVerified = stored?.phoneVerified ?? Boolean(profile.phone)
-    accountCompletion.value = {
-      oauthBound,
-      email,
-      phone,
-      emailVerified,
-      phoneVerified,
-      companionApplicationAllowed: emailVerified || phoneVerified
-    }
+  const loadAccountCompletion = async () => {
+    accountCompletion.value = await request<AccountCompletion>('profile/me/companion-readiness')
     return accountCompletion.value
   }
 
   const sendContactCode = async (channel: CompanionContactType, identifier: string) => {
-    if (prototypeMode) return { developmentCode: DEV_CODE }
     await request<void>('profile/me/contact-verification-codes', { method: 'POST', body: { channel, identifier } })
     return { developmentCode: null }
   }
 
   const verifyContact = async (channel: CompanionContactType, identifier: string, code: string) => {
-    if (!prototypeMode) {
-      accountCompletion.value = await request<AccountCompletion>('profile/me/contacts', {
-        method: 'PUT', body: { channel, identifier, verificationCode: code }
-      })
-      return accountCompletion.value
-    }
-    if (code !== DEV_CODE) throw new Error('Invalid development verification code')
-    const current = accountCompletion.value || {
-      oauthBound: false, email: '', phone: '', emailVerified: false, phoneVerified: false, companionApplicationAllowed: false
-    }
-    const next: AccountCompletion = {
-      ...current,
-      email: channel === 'EMAIL' ? identifier : current.email,
-      phone: channel === 'PHONE' ? identifier : current.phone,
-      emailVerified: channel === 'EMAIL' ? true : current.emailVerified,
-      phoneVerified: channel === 'PHONE' ? true : current.phoneVerified,
-      companionApplicationAllowed: false
-    }
-    next.companionApplicationAllowed = next.emailVerified || next.phoneVerified
-    accountCompletion.value = next
-    writeStored(ACCOUNT_KEY, next)
-    return next
+    accountCompletion.value = await request<AccountCompletion>('profile/me/contacts', {
+      method: 'PUT', body: { channel, identifier, verificationCode: code }
+    })
+    return accountCompletion.value
   }
 
   return {
     application,
     accountCompletion,
-    prototypeMode,
     loadMyApplication,
     submitApplication,
     loadAccountCompletion,
