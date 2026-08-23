@@ -1,9 +1,22 @@
 <script setup lang="ts">
 const { locale, t, toggleLocale, toggleTheme, wishlist } = useMystikos()
-const { authenticated, userName, logout } = useDemoAuth()
+const { authenticated, userName, userAvatarUrl, logout } = useDemoAuth()
+const profileApi = useProfileApi()
 const open = ref(false)
 const showLogoutConfirm = ref(false)
 const close = () => { open.value = false }
+const avatarFailed = ref(false)
+const headerInitial = computed(() => userName.value.trim() ? userName.value.trim().slice(0, 1).toLocaleUpperCase() : '✦')
+watch(userAvatarUrl, () => { avatarFailed.value = false })
+onMounted(async () => {
+  if (!authenticated.value) return
+  try {
+    const profile = await profileApi.getProfile()
+    userName.value = profile.nickname || userName.value
+    userAvatarUrl.value = profile.avatarUrl || ''
+    avatarFailed.value = false
+  } catch { /* Header remains usable with the initials fallback. */ }
+})
 const confirmLogout = async () => {
   await logout()
   showLogoutConfirm.value = false
@@ -30,7 +43,7 @@ const confirmLogout = async () => {
       </nav>
       <div class="header-actions">
         <NuxtLink to="/shop#wishlist" class="wishlist-count" aria-label="Wishlist">♡ <span>{{ wishlist.length }}</span></NuxtLink>
-        <NuxtLink v-if="authenticated" to="/profile" class="profile-chip" :title="t('profile.title')" @click="close">{{ userName.slice(0, 1).toUpperCase() }}</NuxtLink>
+        <NuxtLink v-if="authenticated" to="/profile" class="profile-chip" :title="t('profile.title')" @click="close"><img v-if="userAvatarUrl && !avatarFailed" :src="userAvatarUrl" alt="" @error="avatarFailed = true"><span v-else>{{ headerInitial }}</span></NuxtLink>
         <button v-if="authenticated" class="logout-trigger" :title="t('auth.logout')" @click="showLogoutConfirm = true">{{ t('auth.logout') }}</button>
         <NuxtLink v-else to="/auth" class="auth-link" @click="close">{{ t('auth.login') }}</NuxtLink>
         <button class="icon-button" :aria-label="t('nav.theme')" @click="toggleTheme"><span aria-hidden="true">◐</span></button>

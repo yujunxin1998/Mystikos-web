@@ -96,16 +96,22 @@ npm run dev
 
 ### Discord OAuth 配置
 
-前端会依据 Client ID 自动拼接 Discord 标准授权地址，并在回调时校验 `state` 参数。请在运行环境中配置：
+Discord OAuth 由后端发起并处理回调。前端只需要配置后端 API 地址：
 
 ```powershell
-$env:NUXT_PUBLIC_DISCORD_CLIENT_ID = '你的 Discord Client ID'
-$env:NUXT_PUBLIC_DISCORD_REDIRECT_URI = 'https://web.example.com/auth?provider=discord'
+$env:NUXT_MYSTIKOS_API_BASE = 'http://your-api-host:8099'
 ```
 
-然后在 **Discord Developer Portal** 和后端配置中，使用完全相同的 Redirect URI。授权回调页需要携带 `provider=discord`、`code` 和 `state` 参数；前端会调用后端的 Discord OAuth 登录接口换取令牌。
+后端运行环境需要配置：
 
-> 后端提供的 `http://116.62.218.227:8080/test/oauth-callback.html` 是后端联调用回调页：它会在 `8080` 域名下请求接口并保存令牌，不能让本前端站点获得登录状态。正式接入时，请将 Redirect URI 配置为本前端的 `/auth?provider=discord` 地址。
+```powershell
+$env:DISCORD_CLIENT_ID = '你的 Discord Client ID'
+$env:DISCORD_CLIENT_SECRET = '你的 Discord Client Secret'
+$env:DISCORD_REDIRECT_URI = 'http://your-api-host:8099/api/v1/auth/oauth/discord/callback'
+$env:OAUTH_FRONTEND_RETURN_URI = 'http://127.0.0.1:3000/auth'
+```
+
+将 `DISCORD_REDIRECT_URI` 的值原样添加到 **Discord Developer Portal → OAuth2 → Redirects**。后端使用 Redis 保存一次性 `state` 和 PKCE verifier；授权完成后仅把一分钟有效的一次性登录票据带回前端，Mystikos Token 不会出现在 URL 中。
 
 ## 工程结构
 
@@ -150,7 +156,6 @@ docker build -t mystikos-web:latest .
 docker run -d --name mystikos-web --restart unless-stopped \
   -p 3000:3000 \
   -e NUXT_MYSTIKOS_API_BASE=https://api.example.com \
-  -e NUXT_PUBLIC_DISCORD_AUTHORIZE_URL='https://discord.com/oauth2/authorize?...' \
   mystikos-web:latest
 ```
 
@@ -205,9 +210,6 @@ cp .env.example .env
 | 变量 | 说明 | 是否可公开 |
 | --- | --- | --- |
 | `NUXT_MYSTIKOS_API_BASE` | Mystikos 后端地址，仅由 Nuxt 服务端代理使用 | 否 |
-| `NUXT_PUBLIC_DISCORD_CLIENT_ID` | Discord 应用 Client ID | 是 |
-| `NUXT_PUBLIC_DISCORD_REDIRECT_URI` | Discord 回调地址，须与 Discord 和后端配置完全一致 | 是 |
-| `NUXT_PUBLIC_DISCORD_AUTHORIZE_URL` | 可选：覆盖自动生成的 Discord 授权跳转地址 | 是 |
 | `HOST` / `PORT` | Nuxt Node 服务监听地址和端口 | 否 |
 
 `.env` 文件不得提交到代码仓库。Docker 或 PM2 场景建议通过平台环境变量、密钥管理服务或 CI/CD 变量注入。
