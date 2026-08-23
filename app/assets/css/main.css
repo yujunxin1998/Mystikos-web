@@ -37,3 +37,22 @@
 /* Premium celestial artwork for the authentication panel. */
 .auth-art { isolation:isolate;background:radial-gradient(circle at 51% 47%,rgba(89,70,152,.34),transparent 29%),linear-gradient(156deg,#09091b 0%,#11102d 47%,#1b173d 100%); }.auth-art:before { content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(8,8,22,.08),rgba(8,8,22,.32)),radial-gradient(circle at 15% 74%,rgba(216,173,100,.11),transparent 27%); }.auth-art:after { content:'';position:absolute;inset:20px;z-index:-1;border:1px solid rgba(218,196,255,.12);pointer-events:none; }.auth-celestial { position:absolute;z-index:-1;inset:11% -16% 7% -16%;display:grid;place-items:center;pointer-events:none; }.auth-celestial:before { content:'';position:absolute;width:64%;height:49%;border:1px solid rgba(213,190,255,.16);border-radius:50%;transform:rotate(-22deg); }.auth-celestial img { width:min(670px,113%);max-width:none;opacity:.93;filter:drop-shadow(0 0 36px rgba(180,145,255,.18)) saturate(.87);mix-blend-mode:screen; }.celestial-glow { position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(193,166,255,.18),transparent 66%);filter:blur(13px); }.auth-art>p { max-width:285px;font-size:24px;text-shadow:0 2px 24px rgba(6,5,22,.72); }.auth-art-footer { color:#d7c9fd; }.auth-art-footer span:first-child { color:#ebc477; }.auth-orbits { display:none; }
 @media (max-width:800px) { .auth-art { min-height:310px; }.auth-art:after { inset:12px; }.auth-celestial { inset:-37% -13% -39%; }.auth-celestial img { width:470px;opacity:.75; }.auth-celestial:before { width:70%;height:45%; }.auth-art>p,.auth-art-footer { display:none; } }
+
+/* Final left-panel composition: an original editorial celestial scene, not a collage of supplied icons. */
+.auth-art { isolation:isolate;overflow:hidden;background:#060813; }
+.auth-art:before { content:'';position:absolute;z-index:3;inset:0;background:linear-gradient(180deg,rgba(4,6,16,.18),rgba(4,6,16,.08) 46%,rgba(4,6,16,.9));pointer-events:none; }
+.auth-art:after { z-index:4;inset:22px;border-color:rgba(209,184,125,.16); }
+.auth-art .auth-brand { display:flex;position:absolute;z-index:5;top:44px;left:46px;color:#f8f4ea;filter:drop-shadow(0 3px 14px rgba(0,0,0,.5)); }
+.auth-celestial { position:absolute;z-index:2;inset:0;display:block;overflow:hidden; }
+.auth-celestial:before { display:none; }
+.auth-celestial img { position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:center top;opacity:1;filter:none;mix-blend-mode:normal;transform:scale(1.015);animation:editorial-breathe 16s ease-in-out infinite alternate; }
+.auth-art>p { display:none; }
+.auth-art-copy { position:absolute;z-index:5;left:11%;right:11%;bottom:17%;color:#f7f1e8;text-align:center;text-shadow:0 4px 24px rgba(0,0,0,.72); }
+.auth-art-kicker { display:block;margin-bottom:17px;color:#d8bb7d;font:600 10px/1.2 'DM Mono',monospace;letter-spacing:.32em; }
+.auth-art-copy h2 { margin:0;font:400 clamp(30px,3vw,48px)/.98 'Playfair Display',Georgia,serif;letter-spacing:-.045em; }
+.auth-art-copy h2 em { color:#e7c477;font-weight:400; }
+.auth-art-caption { display:block;margin-top:19px;color:rgba(237,229,216,.67);font-size:11px;letter-spacing:.11em;text-transform:uppercase; }
+.auth-art-footer { display:flex;position:absolute;z-index:5;left:46px;bottom:40px;color:rgba(234,222,202,.72);font-size:9px;letter-spacing:.27em;gap:10px; }
+.auth-art-footer span:first-child { color:#e6c477; }
+@keyframes editorial-breathe { from { transform:scale(1.015) translate3d(0,0,0); } to { transform:scale(1.055) translate3d(-.7%,-.6%,0); } }
+@media (max-width:800px) { .auth-art .auth-brand { top:28px;left:28px; }.auth-art:after { inset:14px; }.auth-celestial { inset:0; }.auth-celestial img { width:100%;height:100%;object-position:center 23%;opacity:1; }.auth-art-copy { bottom:23%; }.auth-art-footer { display:flex;left:29px;bottom:27px; }.auth-art-copy h2 { font-size:32px; } }

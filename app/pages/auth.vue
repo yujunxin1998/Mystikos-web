@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import celestialArtwork from '~/assets/images/auth-celestial-editorial-v2.png'
+
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
 const route = useRoute()
-const celestialArtwork = '/images/auth-celestial-orb.png'
 
 const mode = ref<'login' | 'register'>('login')
 const method = ref<'password' | 'email'>('password')
@@ -85,7 +86,8 @@ onMounted(async () => {
   <section class="auth-page">
     <aside class="auth-art" aria-hidden="true">
       <NuxtLink to="/" class="auth-brand"><BrandLogo /></NuxtLink>
-      <div class="auth-celestial" aria-hidden="true"><img :src="celestialArtwork" alt="" /><span class="celestial-glow" /></div>
+      <div class="auth-celestial" aria-hidden="true"><img :src="celestialArtwork" alt="" /></div>
+      <div class="auth-art-copy"><span class="auth-art-kicker">MYSTIKOS / 01</span><h2>Stories written<br>in <em>starlight.</em></h2><span class="auth-art-caption">A guild for the games you remember.</span></div>
       <p>“The best games leave a little light behind.”</p>
       <div class="auth-art-footer"><span>✦</span><span>EST. IN THE CONSTELLATION</span></div>
     </aside>
