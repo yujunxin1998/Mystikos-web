@@ -1,0 +1,3 @@
+.public-profile-clips.video-list { grid-template-columns: 1fr; }
+.public-profile-clips.video-list .public-profile-clip { min-height: 108px; }
+.public-profile-clips.video-list .public-profile-clip strong { overflow-wrap: anywhere; }

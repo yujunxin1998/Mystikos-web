@@ -1,0 +1,13 @@
+.live-card-cover {
+  background-position: center;
+  background-size: cover;
+}
+
+.live-card-cover.has-cover-image::after {
+  opacity: .62;
+}
+
+.card-cover-upload {
+  border-style: solid !important;
+  background: color-mix(in srgb, var(--lav) 8%, transparent);
+}

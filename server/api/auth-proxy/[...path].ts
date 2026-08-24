@@ -2,16 +2,31 @@ export default defineEventHandler(async (event) => {
   const path = getRouterParam(event, 'path') || ''
   const config = useRuntimeConfig(event)
   const incomingHeaders = getRequestHeaders(event)
-  const body = ['POST', 'PUT', 'PATCH'].includes(getMethod(event)) ? await readBody(event) : undefined
+  const method = getMethod(event)
+  const hasBody = ['POST', 'PUT', 'PATCH'].includes(method)
+  const multipart = incomingHeaders['content-type']?.includes('multipart/form-data')
+  let body: BodyInit | Record<string, unknown> | undefined
+  if (hasBody && multipart) {
+    const parts = await readMultipartFormData(event)
+    const form = new FormData()
+    for (const part of parts || []) {
+      if (!part.name) continue
+      if (part.filename) form.append(part.name, new Blob([part.data], { type: part.type || 'application/octet-stream' }), part.filename)
+      else form.append(part.name, part.data.toString('utf8'))
+    }
+    body = form
+  } else if (hasBody) {
+    body = await readBody(event)
+  }
   const search = getRequestURL(event).search
 
   const response = await $fetch.raw(`${config.mystikosApiBase}/api/v1/${path}${search}`, {
-    method: getMethod(event),
+    method,
     body,
     ignoreResponseError: true,
     headers: {
       ...(incomingHeaders.authorization ? { authorization: incomingHeaders.authorization } : {}),
-      'content-type': 'application/json'
+      ...(!multipart && hasBody ? { 'content-type': 'application/json' } : {})
     }
   })
 

@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-23',
   devtools: { enabled: true },
-  css: ['~/assets/css/main.css', '~/assets/css/companion.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/companion.css', '~/assets/css/companion-card.css', '~/assets/css/companion-cover.css', '~/assets/css/companion-public.css', '~/assets/css/companion-carousel.css', '~/assets/css/companion-public-carousel.css', '~/assets/css/companion-video-list.css', '~/assets/css/companion-public-video-list.css'],
   runtimeConfig: {
     // Override with NUXT_MYSTIKOS_API_BASE in deployment environments.
     // Required. Configure with NUXT_MYSTIKOS_API_BASE; do not bake deployment addresses into the bundle.

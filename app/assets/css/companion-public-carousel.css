@@ -1,0 +1,9 @@
+.public-profile-portrait.has-gallery::after { pointer-events: none; }
+.public-profile-portrait > img { width: 100%; height: 100%; object-fit: cover; }
+.public-profile-portrait > .previous,
+.public-profile-portrait > .next { position: absolute; z-index: 2; top: 50%; width: 39px; height: 39px; border: 1px solid rgba(255,255,255,.32); border-radius: 50%; background: rgba(10,10,28,.58); color: white; transform: translateY(-50%); }
+.public-profile-portrait > .previous { left: 15px; }
+.public-profile-portrait > .next { right: 15px; }
+.public-gallery-dots { position: absolute; z-index: 2; right: 0; bottom: 18px; left: 0; display: flex; justify-content: center; gap: 6px; }
+.public-gallery-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.45); }
+.public-gallery-dots button.active { width: 22px; border-radius: 5px; background: white; }

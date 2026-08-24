@@ -3,17 +3,24 @@ const { locale, t, toggleLocale, toggleTheme, wishlist } = useMystikos()
 const { authenticated, userName, userAvatarUrl, logout } = useDemoAuth()
 const profileApi = useProfileApi()
 const open = ref(false)
+const profileMenuOpen = ref(false)
+const companionApproved = ref(false)
 const showLogoutConfirm = ref(false)
 const close = () => { open.value = false }
+const closeProfileMenu = () => { profileMenuOpen.value = false }
 const avatarFailed = ref(false)
 const headerInitial = computed(() => userName.value.trim() ? userName.value.trim().slice(0, 1).toLocaleUpperCase() : '✦')
 watch(userAvatarUrl, () => { avatarFailed.value = false })
 onMounted(async () => {
   if (!authenticated.value) return
   try {
-    const profile = await profileApi.getProfile()
+    const [profile, application] = await Promise.all([
+      profileApi.getProfile(),
+      useCompanionApplication().loadMyApplication().catch(() => null)
+    ])
     userName.value = profile.nickname || userName.value
     userAvatarUrl.value = profile.avatarUrl || ''
+    companionApproved.value = application?.status === 'APPROVED'
     avatarFailed.value = false
   } catch { /* Header remains usable with the initials fallback. */ }
 })
@@ -38,12 +45,20 @@ const confirmLogout = async () => {
     <div class="nav-wrap" :class="{ 'is-open': open }">
       <nav aria-label="Primary navigation">
         <NuxtLink to="/" @click="close">{{ t('nav.home') }}</NuxtLink>
+        <NuxtLink to="/companions" @click="close">{{ t('nav.companions') }}</NuxtLink>
         <NuxtLink to="/shop" @click="close">{{ t('nav.shop') }}</NuxtLink>
         <NuxtLink to="/#membership" @click="close">{{ t('nav.membership') }}</NuxtLink>
       </nav>
       <div class="header-actions">
         <NuxtLink to="/shop#wishlist" class="wishlist-count" aria-label="Wishlist">♡ <span>{{ wishlist.length }}</span></NuxtLink>
-        <NuxtLink v-if="authenticated" to="/profile" class="profile-chip" :title="t('profile.title')" @click="close"><img v-if="userAvatarUrl && !avatarFailed" :src="userAvatarUrl" alt="" @error="avatarFailed = true"><span v-else>{{ headerInitial }}</span></NuxtLink>
+        <div v-if="authenticated" class="profile-menu">
+          <button class="profile-chip" type="button" :title="t('profile.title')" :aria-expanded="profileMenuOpen" aria-haspopup="menu" @click="profileMenuOpen = !profileMenuOpen"><img v-if="userAvatarUrl && !avatarFailed" :src="userAvatarUrl" alt="" @error="avatarFailed = true"><span v-else>{{ headerInitial }}</span></button>
+          <div v-if="profileMenuOpen" class="profile-menu-popover" role="menu">
+            <div class="profile-menu-heading"><span>{{ userName || 'Stargazer' }}</span><small>{{ companionApproved ? 'COMPANION' : 'MEMBER' }}</small></div>
+            <NuxtLink to="/profile" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.profileHome') }}</span><small>{{ t('nav.profileHomeHint') }}</small></NuxtLink>
+            <NuxtLink v-if="companionApproved" to="/companion/card" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.companionCard') }}</span><small>{{ t('nav.companionCardHint') }}</small></NuxtLink>
+          </div>
+        </div>
         <button v-if="authenticated" class="logout-trigger" :title="t('auth.logout')" @click="showLogoutConfirm = true">{{ t('auth.logout') }}</button>
         <NuxtLink v-else to="/auth" class="auth-link" @click="close">{{ t('auth.login') }}</NuxtLink>
         <button class="icon-button" :aria-label="t('nav.theme')" @click="toggleTheme"><span aria-hidden="true">◐</span></button>
