@@ -42,9 +42,9 @@ const gameNames: Record<string, { key: string; en: string }> = { 'Valorant': { k
 
 export const publicCompanions: PublicCompanion[] = baseCompanions.map((person, index) => ({
   ...person,
-  gameKeys: person.games.map(game => gameNames[game].key),
-  gamesEn: person.games.map(game => gameNames[game].en),
-  taglineEn: english[index].tagline,
-  bioEn: english[index].bio,
+  gameKeys: person.games.map(game => gameNames[game]?.key ?? game.toLowerCase()),
+  gamesEn: person.games.map(game => gameNames[game]?.en ?? game),
+  taglineEn: english[index]?.tagline ?? '',
+  bioEn: english[index]?.bio ?? '',
   statusEn: person.status === '在线' ? 'Online' : person.status === '明晚可约' ? 'Available tomorrow' : 'Available tonight'
 }))
