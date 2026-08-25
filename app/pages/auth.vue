@@ -121,7 +121,7 @@ onBeforeUnmount(clearCooldownTimer)
 <template>
   <section class="auth-page" :class="{ 'auth-page--register': mode === 'register' }">
     <aside class="auth-art">
-      <NuxtLink to="/" class="auth-brand"><BrandLogo /></NuxtLink>
+      <NuxtLink to="/" class="auth-brand"><BrandLogo compact /></NuxtLink>
       <div class="auth-art-stage" aria-hidden="true">
         <img class="auth-moon-slice" :src="moonSlice" alt="">
       </div>
@@ -142,6 +142,7 @@ onBeforeUnmount(clearCooldownTimer)
         </div>
 
         <template v-if="mode === 'login'">
+          <p class="auth-eyebrow">{{ t('auth.guild') }}</p>
           <h1>{{ t('auth.welcome') }}</h1>
           <p class="auth-intro">{{ t('auth.loginBody') }}</p>
           <div class="auth-method-tabs" role="tablist">
@@ -163,6 +164,7 @@ onBeforeUnmount(clearCooldownTimer)
         </template>
 
         <template v-else>
+          <p class="auth-eyebrow">{{ t('auth.guild') }}</p>
           <h1>{{ t('auth.join') }}</h1>
           <p class="auth-intro">{{ t('auth.registerBody') }}</p>
           <form class="auth-form register-form" @submit.prevent="submitRegister">
