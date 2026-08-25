@@ -55,7 +55,7 @@
 .companion-hero h1 {
   margin: 0;
   max-width: 720px;
-  font: 600 clamp(43px, 5vw, 68px)/.98 'Playfair Display', serif;
+  font: 600 clamp(43px, 5vw, 68px)/.98 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.06em;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .companion-moon-mark span {
-  font: 100px/1 'Playfair Display', serif;
+  font: 100px/1 'Playfair Display', 'Noto Serif SC', serif;
   color: #ad9cf3;
   transform: rotate(-13deg);
 }
@@ -126,7 +126,7 @@
   align-items: center;
   gap: 10px;
   color: var(--muted);
-  font: 500 10px 'DM Mono', monospace;
+  font: 500 10px 'DM Mono', 'Noto Sans SC', monospace;
   letter-spacing: .06em;
 }
 
@@ -180,7 +180,7 @@
   display: grid;
   place-items: center;
   color: var(--muted);
-  font: 11px 'DM Mono', monospace;
+  font: 11px 'DM Mono', 'Noto Sans SC', monospace;
 }
 
 .application-form {
@@ -205,12 +205,12 @@
 
 .application-section-title > span {
   color: var(--gold);
-  font: 500 10px 'DM Mono', monospace;
+  font: 500 10px 'DM Mono', 'Noto Sans SC', monospace;
 }
 
 .application-section-title h2 {
   margin: -5px 0 9px;
-  font: 600 27px/1.1 'Playfair Display', serif;
+  font: 600 27px/1.1 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.04em;
 }
 
@@ -426,7 +426,7 @@
   border: 1px solid var(--gold);
   border-radius: 50%;
   color: var(--gold);
-  font: 20px 'Playfair Display', serif;
+  font: 20px 'Playfair Display', 'Noto Serif SC', serif;
 }
 
 .application-blocked div,
@@ -436,7 +436,7 @@
 
 .application-blocked h2 {
   margin: 0 0 6px;
-  font: 600 25px 'Playfair Display', serif;
+  font: 600 25px 'Playfair Display', 'Noto Serif SC', serif;
 }
 
 .application-blocked p {
@@ -501,13 +501,13 @@
 
 .verification-heading > span {
   color: var(--gold);
-  font: 10px 'DM Mono', monospace;
+  font: 10px 'DM Mono', 'Noto Sans SC', monospace;
 }
 
 .verification-heading h2,
 .verification-heading h3 {
   margin: -5px 0 4px;
-  font: 600 27px 'Playfair Display', serif;
+  font: 600 27px 'Playfair Display', 'Noto Serif SC', serif;
 }
 
 .verification-heading p {
@@ -562,7 +562,7 @@
 .verified-contact-value > span {
   min-width: 0;
   overflow: hidden;
-  font: 12px 'DM Mono', monospace;
+  font: 12px 'DM Mono', 'Noto Sans SC', monospace;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -611,7 +611,7 @@
 .prototype-note {
   margin: 16px 0 0;
   color: var(--muted);
-  font: 9px/1.5 'DM Mono', monospace;
+  font: 9px/1.5 'DM Mono', 'Noto Sans SC', monospace;
 }
 
 .security-ready {
@@ -658,12 +658,12 @@
 
 .application-status-stamp small {
   color: #aaa4c2;
-  font: 9px 'DM Mono', monospace;
+  font: 9px 'DM Mono', 'Noto Sans SC', monospace;
   letter-spacing: .08em;
 }
 
 .application-status-stamp strong {
-  font: 600 24px 'Playfair Display', serif;
+  font: 600 24px 'Playfair Display', 'Noto Serif SC', serif;
 }
 
 .application-status-stamp.approved strong {
@@ -697,7 +697,7 @@
 
 .dossier-heading h2 {
   margin: 0 0 18px;
-  font: 600 45px/1 'Playfair Display', serif;
+  font: 600 45px/1 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.05em;
 }
 
@@ -729,7 +729,7 @@
 .dossier-games > span,
 .assessment-panel small {
   color: var(--muted);
-  font: 9px 'DM Mono', monospace;
+  font: 9px 'DM Mono', 'Noto Sans SC', monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -817,7 +817,7 @@
 
 .application-empty h2 {
   margin: 0;
-  font: 600 38px 'Playfair Display', serif;
+  font: 600 38px 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.045em;
 }
 
@@ -856,7 +856,7 @@
 .companion-identity-copy h2 {
   max-width: 620px;
   margin: 0;
-  font: 600 clamp(34px, 4vw, 49px)/1.03 'Playfair Display', serif;
+  font: 600 clamp(34px, 4vw, 49px)/1.03 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.055em;
 }
 
@@ -919,13 +919,13 @@
 .companion-identity-orbit span {
   align-self: end;
   padding-bottom: 5px;
-  font: 600 16px 'Playfair Display', serif;
+  font: 600 16px 'Playfair Display', 'Noto Serif SC', serif;
 }
 
 .companion-identity-orbit small {
   align-self: start;
   color: var(--muted);
-  font: 8px 'DM Mono', monospace;
+  font: 8px 'DM Mono', 'Noto Sans SC', monospace;
   letter-spacing: .08em;
 }
 
@@ -974,7 +974,7 @@
   padding: 10px 13px;
   border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--line));
   color: var(--muted);
-  font: 9px 'DM Mono', monospace;
+  font: 9px 'DM Mono', 'Noto Sans SC', monospace;
   letter-spacing: .05em;
   text-transform: uppercase;
 }
@@ -1080,7 +1080,7 @@
 }
 
 .eligibility-dialog-mark i {
-  font: 21px 'Playfair Display', serif;
+  font: 21px 'Playfair Display', 'Noto Serif SC', serif;
   font-style: normal;
 }
 
@@ -1094,7 +1094,7 @@
 
 .eligibility-dialog h2 {
   margin: 0;
-  font: 600 clamp(32px, 5vw, 44px)/1 'Playfair Display', serif;
+  font: 600 clamp(32px, 5vw, 44px)/1 'Playfair Display', 'Noto Serif SC', serif;
   letter-spacing: -.055em;
 }
 

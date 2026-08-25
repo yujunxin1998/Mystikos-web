@@ -52,13 +52,14 @@ const copy: Record<Locale, Record<string, string>> = {
     'shop.empty': 'No objects in this collection yet.', 'shop.note': 'A demo collection — no checkout or payment is enabled.',
     'footer.tagline': 'Find your people. Make every match matter.', 'footer.legal': 'A guild made for better nights.', 'footer.guild': 'Guild', 'footer.companions': 'Companion picks', 'footer.ranking': 'Rankings', 'footer.membership': 'Membership', 'footer.shop': 'Curio shop', 'footer.fragrance': 'Fragrance', 'footer.accessories': 'Accessories', 'footer.apparel': 'Apparel', 'footer.contact': 'Contact', 'footer.hours': 'Weekdays 10:00–22:00', 'footer.privacy': 'Privacy', 'footer.terms': 'Terms',
     'modal.close': 'Close product details', 'modal.added': 'Added to your wishlist', 'modal.remove': 'Remove from wishlist',
-    'auth.login': 'Log in', 'auth.register': 'Create account', 'auth.welcome': 'Welcome back to the constellation.',
+    'auth.login': 'Log in', 'auth.register': 'Create account', 'auth.guild': '— Mystikos Guild —',
+    'auth.welcome': 'Welcome back to the constellation.',
     'auth.join': 'Find your place among kindred players.', 'auth.loginBody': 'Choose the way that feels most like you. Your stories are waiting.',
     'auth.registerBody': 'A quiet beginning for new friends of the guild.', 'auth.password': 'Account & password', 'auth.email': 'Email code',
     'auth.discord': 'Continue with Discord', 'auth.accountLabel': 'Account name or email', 'auth.accountPlaceholder': 'moonlit.finch',
     'auth.passwordLabel': 'Password', 'auth.passwordPlaceholder': 'At least 8 characters', 'auth.emailLabel': 'Email address',
     'auth.emailPlaceholder': 'you@example.com', 'auth.codeLabel': 'Verification code', 'auth.codePlaceholder': '6-digit code',
-    'auth.sendCode': 'Send code', 'auth.sending': 'Sending…', 'auth.codeSent': 'A code is on its way to your inbox.',
+    'auth.sendCode': 'Send code', 'auth.sending': 'Sending…', 'auth.resendIn': 'Resend in {seconds}s', 'auth.codeSent': 'A code is on its way to your inbox.',
     'auth.remember': 'Remember me on this device', 'auth.forgot': 'Forgot password?', 'auth.submitLogin': 'Enter Mystikos',
     'auth.submitRegister': 'Begin your story', 'auth.or': 'or continue with', 'auth.discordNote': 'Discord opens a secure authorization window in production.',
     'auth.nameLabel': 'Display name', 'auth.namePlaceholder': 'How should the guild call you?', 'auth.confirmLabel': 'Confirm password',
@@ -103,13 +104,14 @@ const copy: Record<Locale, Record<string, string>> = {
     'shop.empty': '这个系列暂时还没有物件。', 'shop.note': '这是演示商品集，暂未开放下单或支付。',
     'footer.tagline': '找搭子，先找对公会。公会原型站。', 'footer.legal': '为更好的游戏之夜而设。', 'footer.guild': '公会', 'footer.companions': '陪玩推荐', 'footer.ranking': '排行榜', 'footer.membership': '等级体系', 'footer.shop': '商城', 'footer.fragrance': '香氛系列', 'footer.accessories': '配饰', 'footer.apparel': '服饰', 'footer.contact': '联系', 'footer.hours': '工作日 10:00–22:00', 'footer.privacy': '隐私政策', 'footer.terms': '服务条款',
     'modal.close': '关闭商品详情', 'modal.added': '已加入心愿单', 'modal.remove': '从心愿单移除',
-    'auth.login': '登录', 'auth.register': '创建账户', 'auth.welcome': '欢迎回到星群',
+    'auth.login': '登录', 'auth.register': '创建账户', 'auth.guild': '— Mystikos 公会 —',
+    'auth.welcome': '欢迎回到星群',
     'auth.join': '在志趣相投的玩家中，找到你的位置。', 'auth.loginBody': '选择最适合你的登录方式，属于你的故事正在等你',
     'auth.registerBody': '献给每一位初次走进公会的新朋友。', 'auth.password': '账号与密码', 'auth.email': '邮箱验证码',
     'auth.discord': '使用 Discord 继续', 'auth.accountLabel': '账号名或邮箱', 'auth.accountPlaceholder': 'moonlit.finch',
     'auth.passwordLabel': '密码', 'auth.passwordPlaceholder': '至少 8 个字符', 'auth.emailLabel': '邮箱地址',
     'auth.emailPlaceholder': 'you@example.com', 'auth.codeLabel': '验证码', 'auth.codePlaceholder': '6 位验证码',
-    'auth.sendCode': '发送验证码', 'auth.sending': '发送中…', 'auth.codeSent': '验证码已发送到你的邮箱。',
+    'auth.sendCode': '发送验证码', 'auth.sending': '发送中…', 'auth.resendIn': '{seconds} 秒后可重发', 'auth.codeSent': '验证码已发送到你的邮箱。',
     'auth.remember': '在此设备上记住我', 'auth.forgot': '忘记密码？', 'auth.submitLogin': '进入 Mystikos',
     'auth.submitRegister': '开始你的故事', 'auth.or': '或使用以下方式继续', 'auth.discordNote': '正式环境中将跳转至 Discord 安全授权页面。',
     'auth.nameLabel': '展示昵称', 'auth.namePlaceholder': '希望公会如何称呼你？', 'auth.confirmLabel': '确认密码',
@@ -168,7 +170,7 @@ const products: Product[] = [
 ]
 
 export function useMystikos() {
-  const locale = useState<Locale>('mystikos-locale', () => 'en')
+  const locale = useState<Locale>('mystikos-locale', () => 'zh')
   const theme = useState<Theme>('mystikos-theme', () => 'dark')
   const wishlist = useState<string[]>('mystikos-wishlist', () => [])
 
