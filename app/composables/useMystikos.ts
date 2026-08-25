@@ -58,7 +58,7 @@ const copy: Record<Locale, Record<string, string>> = {
     'auth.discord': 'Continue with Discord', 'auth.accountLabel': 'Account name or email', 'auth.accountPlaceholder': 'moonlit.finch',
     'auth.passwordLabel': 'Password', 'auth.passwordPlaceholder': 'At least 8 characters', 'auth.emailLabel': 'Email address',
     'auth.emailPlaceholder': 'you@example.com', 'auth.codeLabel': 'Verification code', 'auth.codePlaceholder': '6-digit code',
-    'auth.sendCode': 'Send code', 'auth.sending': 'Sending…', 'auth.codeSent': 'A code is on its way to your inbox.',
+    'auth.sendCode': 'Send code', 'auth.sending': 'Sending…', 'auth.resendIn': 'Resend in {seconds}s', 'auth.codeSent': 'A code is on its way to your inbox.',
     'auth.remember': 'Remember me on this device', 'auth.forgot': 'Forgot password?', 'auth.submitLogin': 'Enter Mystikos',
     'auth.submitRegister': 'Begin your story', 'auth.or': 'or continue with', 'auth.discordNote': 'Discord opens a secure authorization window in production.',
     'auth.nameLabel': 'Display name', 'auth.namePlaceholder': 'How should the guild call you?', 'auth.confirmLabel': 'Confirm password',
@@ -109,7 +109,7 @@ const copy: Record<Locale, Record<string, string>> = {
     'auth.discord': '使用 Discord 继续', 'auth.accountLabel': '账号名或邮箱', 'auth.accountPlaceholder': 'moonlit.finch',
     'auth.passwordLabel': '密码', 'auth.passwordPlaceholder': '至少 8 个字符', 'auth.emailLabel': '邮箱地址',
     'auth.emailPlaceholder': 'you@example.com', 'auth.codeLabel': '验证码', 'auth.codePlaceholder': '6 位验证码',
-    'auth.sendCode': '发送验证码', 'auth.sending': '发送中…', 'auth.codeSent': '验证码已发送到你的邮箱。',
+    'auth.sendCode': '发送验证码', 'auth.sending': '发送中…', 'auth.resendIn': '{seconds} 秒后可重发', 'auth.codeSent': '验证码已发送到你的邮箱。',
     'auth.remember': '在此设备上记住我', 'auth.forgot': '忘记密码？', 'auth.submitLogin': '进入 Mystikos',
     'auth.submitRegister': '开始你的故事', 'auth.or': '或使用以下方式继续', 'auth.discordNote': '正式环境中将跳转至 Discord 安全授权页面。',
     'auth.nameLabel': '展示昵称', 'auth.namePlaceholder': '希望公会如何称呼你？', 'auth.confirmLabel': '确认密码',
@@ -168,7 +168,7 @@ const products: Product[] = [
 ]
 
 export function useMystikos() {
-  const locale = useState<Locale>('mystikos-locale', () => 'en')
+  const locale = useState<Locale>('mystikos-locale', () => 'zh')
   const theme = useState<Theme>('mystikos-theme', () => 'dark')
   const wishlist = useState<string[]>('mystikos-wishlist', () => [])
 

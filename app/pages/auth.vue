@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import celestialArtwork from '~/assets/images/auth-celestial-editorial-v2.png'
+import moonSlice from '~/assets/images/auth-moon-slice.png'
 
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
@@ -18,13 +18,38 @@ const registerCode = ref('')
 const acceptedTerms = ref(false)
 const sentCode = ref(false)
 const sending = ref(false)
+const codeCooldown = ref(0)
 const error = ref('')
 const success = ref('')
+const CODE_COOLDOWN_SECONDS = 60
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
 
 useHead({ title: 'Welcome to Mystikos' })
 
 const resetFeedback = () => { error.value = ''; success.value = '' }
 const validLoginIdentifier = (value: string) => /\S+@\S+\.\S+/.test(value) || /^\+?[\d\s-]{6,}$/.test(value)
+const clearCooldownTimer = () => {
+  if (!cooldownTimer) return
+  clearInterval(cooldownTimer)
+  cooldownTimer = null
+}
+const startCodeCooldown = () => {
+  clearCooldownTimer()
+  codeCooldown.value = CODE_COOLDOWN_SECONDS
+  cooldownTimer = setInterval(() => {
+    codeCooldown.value -= 1
+    if (codeCooldown.value <= 0) {
+      codeCooldown.value = 0
+      clearCooldownTimer()
+    }
+  }, 1000)
+}
+const sendCodeLabel = computed(() => {
+  if (sending.value) return t('auth.sending')
+  if (codeCooldown.value > 0) return t('auth.resendIn', { seconds: codeCooldown.value })
+  return t('auth.sendCode')
+})
+const sendCodeDisabled = computed(() => sending.value || codeCooldown.value > 0)
 const switchMode = (value: 'login' | 'register') => {
   mode.value = value
   method.value = 'password'
@@ -32,9 +57,18 @@ const switchMode = (value: 'login' | 'register') => {
 }
 const sendCode = async (purpose: 'LOGIN' | 'REGISTER') => {
   resetFeedback()
+  if (codeCooldown.value > 0) return
   if (!email.value.includes('@')) { error.value = t('auth.required'); return }
   sending.value = true
-  try { await requestCode(email.value, purpose); sentCode.value = true } catch (cause) { error.value = cause instanceof Error ? cause.message : t('auth.required') } finally { sending.value = false }
+  try {
+    await requestCode(email.value, purpose)
+    sentCode.value = true
+    startCodeCooldown()
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : t('auth.required')
+  } finally {
+    sending.value = false
+  }
 }
 const finish = async (message: string) => {
   success.value = message
@@ -81,20 +115,26 @@ onMounted(async () => {
     }
   }
 })
+onBeforeUnmount(clearCooldownTimer)
 </script>
 
 <template>
-  <section class="auth-page">
-    <aside class="auth-art" aria-hidden="true">
+  <section class="auth-page" :class="{ 'auth-page--register': mode === 'register' }">
+    <aside class="auth-art">
       <NuxtLink to="/" class="auth-brand"><BrandLogo /></NuxtLink>
-      <div class="auth-celestial" aria-hidden="true"><img :src="celestialArtwork" alt="" /></div>
-      <div class="auth-art-copy"><span class="auth-art-kicker">MYSTIKOS / 01</span><h2>Stories written<br>in <em>starlight.</em></h2><span class="auth-art-caption">A guild for the games you remember.</span></div>
-      <p>“The best games leave a little light behind.”</p>
-      <div class="auth-art-footer"><span>✦</span><span>EST. IN THE CONSTELLATION</span></div>
+      <div class="auth-art-stage" aria-hidden="true">
+        <img class="auth-moon-slice" :src="moonSlice" alt="">
+      </div>
+      <p class="auth-art-footer" aria-hidden="true"><span>✧</span> EST. IN THE CONSTELLATION</p>
+      <div class="auth-art-pager" aria-hidden="true">
+        <span>01 / 07</span>
+        <i />
+      </div>
     </aside>
 
     <main class="auth-main">
       <NuxtLink to="/" class="auth-back">← <span>{{ t('nav.home') }}</span></NuxtLink>
+      <div class="auth-panel-scroll">
       <div class="auth-panel">
         <div class="auth-mode-tabs" role="tablist">
           <button :class="{ active: mode === 'login' }" role="tab" :aria-selected="mode === 'login'" @click="switchMode('login')">{{ t('auth.login') }}</button>
@@ -102,7 +142,6 @@ onMounted(async () => {
         </div>
 
         <template v-if="mode === 'login'">
-          <p class="eyebrow"><span />MYSTIKOS GUILD</p>
           <h1>{{ t('auth.welcome') }}</h1>
           <p class="auth-intro">{{ t('auth.loginBody') }}</p>
           <div class="auth-method-tabs" role="tablist">
@@ -117,20 +156,20 @@ onMounted(async () => {
           </form>
           <form v-else class="auth-form" @submit.prevent="submitLogin">
             <label><span>{{ t('auth.emailLabel') }}</span><input v-model.trim="email" type="email" :placeholder="t('auth.emailPlaceholder')" autocomplete="email"></label>
-            <label><span>{{ t('auth.codeLabel') }}</span><div class="code-field"><input v-model.trim="code" inputmode="numeric" :placeholder="t('auth.codePlaceholder')"><button type="button" :disabled="sending" @click="sendCode('LOGIN')">{{ sending ? t('auth.sending') : t('auth.sendCode') }}</button></div></label>
+            <label><span>{{ t('auth.codeLabel') }}</span><div class="code-field"><input v-model.trim="code" inputmode="numeric" :placeholder="t('auth.codePlaceholder')"><button type="button" :disabled="sendCodeDisabled" @click="sendCode('LOGIN')">{{ sendCodeLabel }}</button></div></label>
             <p v-if="sentCode" class="code-sent">✦ {{ t('auth.codeSent') }}</p>
             <button class="auth-submit" type="submit">{{ t('auth.submitLogin') }} <span>→</span></button>
           </form>
         </template>
 
         <template v-else>
-          <p class="eyebrow"><span />NEW GUILD MEMBER</p>
           <h1>{{ t('auth.join') }}</h1>
           <p class="auth-intro">{{ t('auth.registerBody') }}</p>
           <form class="auth-form register-form" @submit.prevent="submitRegister">
             <label><span>{{ t('auth.nameLabel') }}</span><input v-model.trim="displayName" :placeholder="t('auth.namePlaceholder')" autocomplete="nickname"></label>
             <label><span>{{ t('auth.emailLabel') }}</span><input v-model.trim="email" type="email" :placeholder="t('auth.emailPlaceholder')" autocomplete="email"></label>
-            <label><span>{{ t('auth.codeLabel') }}</span><div class="code-field"><input v-model.trim="registerCode" inputmode="numeric" :placeholder="t('auth.codePlaceholder')"><button type="button" :disabled="sending" @click="sendCode('REGISTER')">{{ sending ? t('auth.sending') : t('auth.sendCode') }}</button></div></label>
+            <label><span>{{ t('auth.codeLabel') }}</span><div class="code-field"><input v-model.trim="registerCode" inputmode="numeric" :placeholder="t('auth.codePlaceholder')"><button type="button" :disabled="sendCodeDisabled" @click="sendCode('REGISTER')">{{ sendCodeLabel }}</button></div></label>
+            <p v-if="sentCode" class="code-sent">✦ {{ t('auth.codeSent') }}</p>
             <label><span>{{ t('auth.passwordLabel') }}</span><input v-model="password" type="password" :placeholder="t('auth.passwordPlaceholder')" autocomplete="new-password"></label>
             <label><span>{{ t('auth.confirmLabel') }}</span><input v-model="confirmPassword" type="password" :placeholder="t('auth.passwordPlaceholder')" autocomplete="new-password"></label>
             <label class="check-label terms-label"><input v-model="acceptedTerms" type="checkbox"><i />{{ t('auth.terms') }}</label>
@@ -147,23 +186,11 @@ onMounted(async () => {
           </svg>
           {{ t('auth.discord') }}
         </button>
-        <p class="discord-note">{{ t('auth.discordNote') }}</p>
-        <p class="auth-demo">✦ {{ t('auth.demo') }}</p>
+        <p class="auth-oauth-note">{{ t('auth.discordNote') }}</p>
+      </div>
       </div>
     </main>
   </section>
 </template>
 
-<style scoped>
-.discord-button:hover {
-  border-color: #5865f2;
-  background: rgba(88, 101, 242, 0.08);
-}
 
-.discord-icon {
-  width: 21px;
-  height: 21px;
-  flex: 0 0 21px;
-  fill: #5865f2;
-}
-</style>
