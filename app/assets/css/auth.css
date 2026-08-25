@@ -65,17 +65,11 @@
   filter: drop-shadow(0 3px 14px rgba(0, 0, 0, 0.5));
 }
 
-.auth-brand .brand-logo {
-  color: #f8f4ea;
-}
-
-.auth-brand .brand-logo-mark {
-  width: 52px;
-  height: 48px;
-}
-
-.auth-brand .brand-logo-word {
-  display: none;
+.auth-brand img {
+  display: block;
+  width: 148px;
+  height: auto;
+  max-width: none;
 }
 
 .auth-art-stage {
@@ -623,6 +617,10 @@
   .auth-art .auth-brand {
     top: 24px;
     left: 24px;
+  }
+
+  .auth-brand img {
+    width: 116px;
   }
 
   .auth-art-stage {

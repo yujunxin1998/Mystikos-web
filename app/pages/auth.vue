@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import moonSlice from '~/assets/images/auth-moon-slice.png'
+import authWordmark from '~/assets/images/auth-mystikos-wordmark.png'
 
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
@@ -121,7 +122,7 @@ onBeforeUnmount(clearCooldownTimer)
 <template>
   <section class="auth-page" :class="{ 'auth-page--register': mode === 'register' }">
     <aside class="auth-art">
-      <NuxtLink to="/" class="auth-brand"><BrandLogo compact /></NuxtLink>
+      <NuxtLink to="/" class="auth-brand" aria-label="Mystikos"><img :src="authWordmark" alt="Mystikos"></NuxtLink>
       <div class="auth-art-stage" aria-hidden="true">
         <img class="auth-moon-slice" :src="moonSlice" alt="">
       </div>

@@ -20,5 +20,6 @@ onMounted(applyTheme)
       <NuxtPage />
     </main>
     <SiteFooter v-if="!isAuthRoute" />
+    <BackToTop v-if="!isAuthRoute" />
   </div>
 </template>

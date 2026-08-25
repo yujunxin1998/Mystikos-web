@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ProfileTag } from '~/composables/useProfileApi'
 import type { PublicShowcaseCard } from '~/composables/useCompanionShowcaseApi'
+import { companionAccent } from '~/utils/companion-style.mjs'
 
 const { t } = useMystikos()
 const { getTags } = useProfileApi()
@@ -55,7 +56,7 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
       <div class="directory-grid">
         <div v-if="loading" class="directory-empty"><strong>{{ t('directory.loading') }}</strong></div>
         <div v-else-if="error" class="directory-empty"><strong>{{ t('directory.loadError') }}</strong><span>{{ error }}</span><button type="button" class="button" @click="loadCompanions">{{ t('directory.retry') }}</button></div>
-        <article v-for="person in companions" v-else :key="person.userId" class="directory-card">
+        <article v-for="person in companions" v-else :key="person.userId" class="directory-card" :style="{ '--companion-accent': companionAccent(person.userId) }">
           <button class="directory-favorite" :class="{ saved: saved.includes(person.userId) }" type="button" :aria-label="t(saved.includes(person.userId) ? 'directory.unsave' : 'directory.save', { name: person.nickname })" @click="toggleSaved(person.userId)">{{ saved.includes(person.userId) ? '♥' : '♡' }}</button>
           <NuxtLink :to="`/companions/${person.userId}`"><div class="directory-portrait"><img v-if="person.coverPhotoUrl || person.avatarUrl" :src="person.coverPhotoUrl || person.avatarUrl || ''" :alt="person.nickname"><span v-else>{{ person.nickname?.charAt(0).toUpperCase() || '?' }}</span><em><i />{{ person.availability || t('directory.available') }}</em></div><div class="directory-card-body"><div class="directory-person-title"><span class="directory-mini-avatar"><img v-if="person.avatarUrl" :src="person.avatarUrl" :alt="person.nickname"><b v-else>{{ person.nickname?.charAt(0).toUpperCase() || '?' }}</b></span><h3>{{ person.nickname }}</h3></div><p>{{ person.tagline || person.bio || t('directory.noTagline') }}</p><div class="directory-tags"><span v-for="tag in person.tags" :key="tag.id">{{ tag.label }}</span></div><footer><span>{{ t('directory.verified') }}</span><b>{{ t('directory.viewCard') }} →</b></footer></div></NuxtLink>
         </article>
