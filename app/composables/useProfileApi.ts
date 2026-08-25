@@ -22,6 +22,7 @@ export type UserProfile = {
   bio: string | null
   regionCode: string | null
   tags: ProfileTag[]
+  roles: string[]
 }
 
 type ApiResponse<T> = { code: number; message?: string; data: T | null }

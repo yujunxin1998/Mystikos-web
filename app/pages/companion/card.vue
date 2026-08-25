@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { authenticated, userAvatarUrl, userName } = useDemoAuth()
 const { locale } = useMystikos()
-const companionApi = useCompanionApplication()
 const showcaseApi = useCompanionShowcaseApi()
 const profileApi = useProfileApi()
 
@@ -165,8 +164,8 @@ const submitForReview = async () => {
 onMounted(async () => {
   if (!authenticated.value) return navigateTo('/auth')
   try {
-    const [application, profile, tags, draft] = await Promise.all([companionApi.loadMyApplication(), profileApi.getProfile(), profileApi.getTags(), showcaseApi.getMine()])
-    if (application?.status !== 'APPROVED') { error.value = copy.value.denied; return }
+    const [profile, tags, draft] = await Promise.all([profileApi.getProfile(), profileApi.getTags(), showcaseApi.getMine()])
+    if (!profile.roles?.includes('COMPANION')) { error.value = copy.value.denied; return }
     availableTags.value = tags
     Object.assign(form, { displayName: profile.nickname || userName.value, bio: profile.bio || '', tagIds: profile.tags.slice(0, 4).map(tag => tag.id) })
     if (draft) Object.assign(form, {

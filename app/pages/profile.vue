@@ -41,6 +41,7 @@ const companionCopy = computed(() => locale.value === 'zh' ? {
 })
 const companionApplication = computed(() => companionApi.application.value)
 const companionStatus = computed(() => companionApplication.value ? companionCopy.value.status[companionApplication.value.status] : '')
+const isCompanion = computed(() => profile.value?.roles?.includes('COMPANION') ?? false)
 
 const regionOptions = computed(() => regions.value.flatMap(country => [country, ...(country.children || [])].map(region => ({
   code: region.code,
@@ -188,7 +189,7 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
       <p v-if="feedback" class="profile-feedback success" role="status">{{ feedback }}</p><p v-if="error" class="profile-feedback error" role="alert">{{ error }}</p>
     </section>
 
-    <section class="profile-section companion-identity-card">
+    <section v-if="!isCompanion" class="profile-section companion-identity-card">
       <div class="companion-identity-copy">
         <p class="eyebrow"><span />{{ companionCopy.eyebrow }}</p>
         <h2>{{ companionCopy.title }}</h2>

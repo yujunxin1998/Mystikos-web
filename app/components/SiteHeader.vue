@@ -14,13 +14,10 @@ watch(userAvatarUrl, () => { avatarFailed.value = false })
 onMounted(async () => {
   if (!authenticated.value) return
   try {
-    const [profile, application] = await Promise.all([
-      profileApi.getProfile(),
-      useCompanionApplication().loadMyApplication().catch(() => null)
-    ])
+    const profile = await profileApi.getProfile()
     userName.value = profile.nickname || userName.value
     userAvatarUrl.value = profile.avatarUrl || ''
-    companionApproved.value = application?.status === 'APPROVED'
+    companionApproved.value = profile.roles?.includes('COMPANION') ?? false
     avatarFailed.value = false
   } catch { /* Header remains usable with the initials fallback. */ }
 })
