@@ -6,6 +6,10 @@ const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
 const route = useRoute()
 const config = useRuntimeConfig()
+const redirectAfterAuth = computed(() => {
+  const target = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
+  return target.startsWith('/') && !target.startsWith('//') ? target : '/'
+})
 
 const mode = ref<'login' | 'register'>('login')
 const method = ref<'password' | 'email'>('password')
@@ -74,7 +78,7 @@ const sendCode = async (purpose: 'LOGIN' | 'REGISTER') => {
 const finish = async (message: string) => {
   success.value = message
   await new Promise(resolve => setTimeout(resolve, 900))
-  await navigateTo('/')
+  await navigateTo(redirectAfterAuth.value)
 }
 const submitLogin = async () => {
   resetFeedback()
@@ -195,5 +199,4 @@ onBeforeUnmount(clearCooldownTimer)
     </main>
   </section>
 </template>
-
 

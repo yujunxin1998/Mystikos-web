@@ -9,6 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
+    "test": "node --test test/*.test.mjs",
     "postinstall": "node scripts/patch-rolldown.mjs"
   },
   "devDependencies": {

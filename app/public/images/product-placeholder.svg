@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" role="img" aria-label="Product image unavailable">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#211d39"/><stop offset="1" stop-color="#54416e"/></linearGradient></defs>
+  <rect width="800" height="900" fill="url(#g)"/><circle cx="400" cy="390" r="150" fill="none" stroke="#d7b779" stroke-width="3" opacity=".7"/><path d="M250 510c85-105 215-105 300 0" fill="none" stroke="#d7b779" stroke-width="3" opacity=".7"/><text x="400" y="700" fill="#e8dfcf" font-family="serif" font-size="32" text-anchor="middle" letter-spacing="8">MYSTIKOS</text>
+</svg>
