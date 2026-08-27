@@ -101,6 +101,8 @@ npm run dev
 
 密码登录不会把明文密码写入登录请求。前端首先通过同源代理请求 `GET /api/v1/auth/public-key`，导入接口返回的 X.509 SPKI PEM 公钥，再使用浏览器 Web Crypto API 按 `RSA-OAEP-256`（RSA-OAEP + SHA-256）加密密码。登录请求仅提交公钥版本 `keyId` 和 Base64 密文 `encryptedCredential`。
 
+非对称加密开关由环境变量 `NUXT_PUBLIC_PASSWORD_ENCRYPTION_ENABLED` 控制，默认开启，默认值定义在 `config/security.config.ts`（部署时可直接编辑该文件）。设为 `false` 后，登录不再获取公钥，改按 `{ credentialType: 'PASSWORD', credential: <明文密码> }` 直接提交，仅用于后端同样关闭非对称加密的联调 / 测试环境。
+
 公钥缺失、算法不是 `RSA-OAEP-256`、浏览器不支持 Web Crypto 或加密失败时，登录会直接终止，不会降级发送明文密码。验证码登录不需要 RSA 加密。注册接口目前仍按后端文档提交 `password`，待后端注册协议提供对应密文字段后再升级。
 
 > RSA 登录加密不能替代 HTTPS：生产环境仍必须使用 HTTPS，才能同时保护账号标识、验证码、Token、响应内容以及请求完整性。
@@ -221,6 +223,7 @@ cp .env.example .env
 | 变量 | 说明 | 是否可公开 |
 | --- | --- | --- |
 | `NUXT_MYSTIKOS_API_BASE` | Mystikos 后端地址，仅由 Nuxt 服务端代理使用 | 否 |
+| `NUXT_PUBLIC_PASSWORD_ENCRYPTION_ENABLED` | 密码登录 RSA 非对称加密开关，默认开启 | 是 |
 | `HOST` / `PORT` | Nuxt Node 服务监听地址和端口 | 否 |
 
 `.env` 文件不得提交到代码仓库。Docker 或 PM2 场景建议通过平台环境变量、密钥管理服务或 CI/CD 变量注入。

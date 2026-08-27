@@ -1,4 +1,4 @@
-import { buildEncryptedPasswordLoginPayload } from '~/utils/loginCredentialEncryption.js'
+import { buildEncryptedPasswordLoginPayload, buildPlaintextPasswordLoginPayload } from '~/utils/loginCredentialEncryption.js'
 
 type ApiResponse<T> = { code: number; message?: string; data: T | null }
 type TokenResponse = { accessToken: string; refreshToken: string; userId: number }
@@ -8,6 +8,7 @@ type Channel = 'EMAIL' | 'PHONE'
 const channelFor = (identifier: string): Channel => /^\+?[\d\s-]{6,}$/.test(identifier) ? 'PHONE' : 'EMAIL'
 
 export function useDemoAuth() {
+  const config = useRuntimeConfig()
   const accessToken = useCookie<string | null>('mystikos_access_token', { sameSite: 'lax' })
   const refreshToken = useCookie<string | null>('mystikos_refresh_token', { sameSite: 'lax' })
   const authenticated = useState('mystikos-authenticated', () => Boolean(accessToken.value))
@@ -27,8 +28,9 @@ export function useDemoAuth() {
     authenticated.value = true
   }
   const loginPassword = async (identifier: string, password: string) => {
-    const keyData = await request<LoginPublicKeyResponse>('auth/public-key')
-    const body = await buildEncryptedPasswordLoginPayload(identifier, password, keyData)
+    const body = config.public.passwordEncryptionEnabled
+      ? await buildEncryptedPasswordLoginPayload(identifier, password, await request<LoginPublicKeyResponse>('auth/public-key'))
+      : buildPlaintextPasswordLoginPayload(identifier, password)
     const tokens = await request<TokenResponse>('auth/login', { method: 'POST', body })
     storeTokens(tokens, identifier.split('@')[0] || identifier)
   }

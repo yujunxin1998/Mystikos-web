@@ -1,3 +1,5 @@
+import securityConfig from './config/security.config'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-23',
   devtools: { enabled: true },
@@ -5,7 +7,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Override with NUXT_MYSTIKOS_API_BASE in deployment environments.
     // Required. Configure with NUXT_MYSTIKOS_API_BASE; do not bake deployment addresses into the bundle.
-    mystikosApiBase: ''
+    mystikosApiBase: '',
+    public: {
+      // 默认值定义在 config/security.config.ts，部署时可直接编辑该文件或通过环境变量覆盖。
+      passwordEncryptionEnabled: securityConfig.passwordEncryptionEnabled
+    }
   },
   app: {
     head: {

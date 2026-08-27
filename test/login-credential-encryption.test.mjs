@@ -4,6 +4,7 @@ import test from 'node:test'
 
 import {
   buildEncryptedPasswordLoginPayload,
+  buildPlaintextPasswordLoginPayload,
   encryptLoginCredential,
 } from '../app/utils/loginCredentialEncryption.js'
 
@@ -59,4 +60,19 @@ test('buildEncryptedPasswordLoginPayload rejects an unexpected server algorithm'
     ),
     /Unsupported login encryption algorithm/,
   )
+})
+
+test('buildPlaintextPasswordLoginPayload submits the plaintext password without a public key', async () => {
+  assert.deepEqual(buildPlaintextPasswordLoginPayload('user@example.com', 'plain-text-password'), {
+    channel: 'EMAIL',
+    identifier: 'user@example.com',
+    credentialType: 'PASSWORD',
+    credential: 'plain-text-password',
+  })
+  assert.deepEqual(buildPlaintextPasswordLoginPayload('+86 13800138000', 'plain-text-password'), {
+    channel: 'PHONE',
+    identifier: '+86 13800138000',
+    credentialType: 'PASSWORD',
+    credential: 'plain-text-password',
+  })
 })

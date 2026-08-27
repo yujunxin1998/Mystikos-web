@@ -60,3 +60,10 @@ export const buildEncryptedPasswordLoginPayload = async (
     encryptedCredential: await encrypt(keyData.publicKey, password),
   }
 }
+
+export const buildPlaintextPasswordLoginPayload = (identifier, password) => ({
+  channel: channelFor(identifier),
+  identifier,
+  credentialType: 'PASSWORD',
+  credential: password,
+})
