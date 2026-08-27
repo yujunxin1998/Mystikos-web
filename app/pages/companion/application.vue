@@ -9,7 +9,7 @@ const loading = ref(true)
 const error = ref('')
 
 const copy = computed(() => locale.value === 'zh' ? {
-  eyebrow: '我的陪玩申请', title: '申请已经进入公会的星轨。', body: '考核在线下进行；管理员更新状态后，你可以在这里看到最新结果。', back: '返回个人中心',
+  eyebrow: '我的陪玩申请', title: '申请已经进入公会的星轨', body: '考核在线下进行；管理员更新状态后，你可以在这里看到最新结果。', back: '返回个人中心',
   empty: '还没有陪玩申请', emptyBody: '准备好之后，提交你的游戏类型和联系方式。', apply: '开始申请', submitted: '提交时间', updated: '最后更新', contact: '联系方式', games: '申请游戏', applicant: '申请人', gameNickname: '游戏昵称', region: '地区', intro: '申请介绍', assessor: '考核人', result: '考核结果', opinion: '审核意见', pendingResult: '考核完成后将在这里更新。',
   status: { PENDING: '申请中', ASSESSING: '考核中', APPROVED: '审核通过', REJECTED: '审核未通过' }
 } : {

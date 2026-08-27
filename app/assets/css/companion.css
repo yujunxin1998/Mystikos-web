@@ -650,6 +650,34 @@
   color: #328669;
 }
 
+.oauth-binding-card { margin-top: 28px; padding: 34px; border: 1px solid var(--line); background: var(--card); }
+.oauth-binding-heading { display: grid; grid-template-columns: 48px 1fr auto; gap: 18px; align-items: center; }
+.discord-mark { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: #5865f2; color: #fff; font: 700 20px 'DM Sans', sans-serif; }
+.oauth-binding-heading h2 { margin: 0 0 5px; font: 600 27px 'Playfair Display', 'Noto Serif SC', serif; }
+.oauth-binding-heading p, .oauth-verification-form > p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.oauth-binding-status { padding: 7px 10px; border: 1px solid var(--line); color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+.oauth-binding-status.linked { border-color: color-mix(in srgb, #3c9b79 48%, var(--line)); color: #3c9b79; }
+.oauth-security-note { display: flex; gap: 9px; margin: 24px 0; padding: 14px; background: color-mix(in srgb, var(--lav) 9%, var(--paper)); color: var(--muted); font-size: 11px; line-height: 1.6; }
+.oauth-security-note span { color: var(--gold); }
+.oauth-binding-actions, .oauth-form-actions { display: flex; align-items: center; gap: 14px; }
+.text-action.danger { margin: 0; color: #bb5263; }
+.oauth-verification-form { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+.oauth-verification-form h3 { margin: 0 0 6px; font: 600 20px 'Playfair Display', 'Noto Serif SC', serif; }
+.oauth-verification-form .verification-code-row { max-width: 520px; }
+.oauth-risk-confirm { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0; color: #8f4552; font-size: 11px; line-height: 1.5; }
+.oauth-risk-confirm input { margin-top: 2px; accent-color: #bb5263; }
+.oauth-form-actions { justify-content: flex-end; margin-top: 22px; }
+.button-danger { border: 1px solid #a74455; background: #a74455; color: #fff; }
+.button-danger:disabled { opacity: .45; }
+
+@media (max-width: 650px) {
+  .oauth-binding-card { padding: 24px 20px; }
+  .oauth-binding-heading { grid-template-columns: 42px 1fr; }
+  .discord-mark { width: 42px; height: 42px; }
+  .oauth-binding-status { grid-column: 2; justify-self: start; }
+  .oauth-form-actions { align-items: stretch; flex-direction: column-reverse; }
+}
+
 .application-status-stamp {
   width: 205px;
   min-height: 125px;

@@ -48,7 +48,7 @@ const dropMedia = async (type: 'photos' | 'videos' | 'audios', targetIndex: numb
 }
 
 const copy = computed(() => locale.value === 'zh' ? {
-  eyebrow: '陪玩名片编辑器', title: '让别人先认识你，再决定与你并肩。', intro: '这里编辑的是审核通过后公开展示的在线名片，不会修改你的账号资料。', preview: '实时预览', publicView: '公开视角', edit: '编辑名片', basic: '基础资料', media: '展示素材', bio: '个人简介', save: '保存草稿', saving: '保存中…', saved: '草稿已保存在当前设备', back: '返回个人资料', verified: '认证陪玩', games: '擅长游戏', max: '最多选择 4 项', denied: '只有陪玩审核通过的用户可以编辑名片。'
+  eyebrow: '陪玩名片编辑器', title: '让别人先认识你再决定与你并肩', intro: '这里编辑的是审核通过后公开展示的在线名片，不会修改你的账号资料。', preview: '实时预览', publicView: '公开视角', edit: '编辑名片', basic: '基础资料', media: '展示素材', bio: '个人简介', save: '保存草稿', saving: '保存中…', saved: '草稿已保存在当前设备', back: '返回个人资料', verified: '认证陪玩', games: '擅长游戏', max: '最多选择 4 项', denied: '只有陪玩审核通过的用户可以编辑名片。'
 } : {
   eyebrow: 'Companion card editor', title: 'Let people meet you before they queue with you.', intro: 'This public card is separate from your account profile and is available after approval.', preview: 'Live preview', publicView: 'Public view', edit: 'Edit card', basic: 'Essentials', media: 'Showcase media', bio: 'About you', save: 'Save draft', saving: 'Saving…', saved: 'Draft saved on this device', back: 'Back to profile', verified: 'Verified companion', games: 'Games', max: 'Choose up to 4', denied: 'Only approved companions can edit a card.'
 })

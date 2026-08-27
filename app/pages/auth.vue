@@ -4,6 +4,7 @@ import authWordmark from '~/assets/images/auth-mystikos-wordmark.png'
 
 const { t } = useMystikos()
 const { loginPassword, loginWithCode, sendCode: requestCode, register, redeemOAuthTicket } = useDemoAuth()
+const oauthBinding = useOAuthBinding()
 const route = useRoute()
 const config = useRuntimeConfig()
 
@@ -101,6 +102,16 @@ const discordLogin = async () => {
   window.location.assign(`${config.app.baseURL}api/oauth/discord/start`)
 }
 onMounted(async () => {
+  const bindTicket = typeof route.query.oauth_bind_ticket === 'string' ? route.query.oauth_bind_ticket : ''
+  if (bindTicket) {
+    try {
+      const result = await oauthBinding.redeemBindTicket(bindTicket)
+      await navigateTo({ path: '/profile/account-security', query: { oauth_bind: 'success', provider: result.provider, displayName: result.displayName || undefined } }, { replace: true })
+    } catch (cause) {
+      await navigateTo({ path: '/profile/account-security', query: { oauth_bind: 'error', reason: cause instanceof Error ? cause.message : 'OAuth binding failed' } }, { replace: true })
+    }
+    return
+  }
   if (route.query.oauth_error) {
     error.value = 'Discord login service is unavailable. Please check the backend configuration and try again.'
     return

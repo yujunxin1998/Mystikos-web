@@ -17,7 +17,7 @@ const phoneCountry = ref<CountryCode>('CN')
 const form = reactive({ applicantName: '', gameNickname: '', regionCode: '', introduction: '', tagIds: [] as number[], contactType: 'PHONE' as 'PHONE' | 'EMAIL', contactValue: '' })
 
 const copy = computed(() => locale.value === 'zh' ? {
-  eyebrow: '申请成为陪玩', title: '把你擅长的游戏，变成别人的好时光。', body: '提交一份简洁的公会档案。考核在线下完成，页面只记录申请与审核状态。',
+  eyebrow: '申请成为陪玩', title: '把你擅长的游戏变成别人的好时光', body: '提交一份简洁的公会档案。考核在线下完成，页面只记录申请与审核状态。',
   back: '返回个人中心', blockedTitle: '账号资料还没有准备好', blockedBody: '请先完成邮箱或手机号其中一项认证。', complete: '完善账号资料',
   basics: '申请人资料', name: '申请人姓名或称呼', namePlaceholder: '管理员联系你时使用的称呼', gameNickname: '游戏昵称', gameNicknamePlaceholder: '填写考核时使用的游戏昵称', region: '所在国家或地区', intro: '自我介绍', introPlaceholder: '介绍你的游戏经验、沟通方式和擅长营造的游戏氛围…',
   games: '选择游戏类型', gamesHint: '至少选择一个，由全局游戏 Tag 目录提供。', contact: '首选联系方式', phone: '手机号', email: '邮箱', emailPlaceholder: 'contact@example.com', phonePlaceholder: '请输入本地手机号',

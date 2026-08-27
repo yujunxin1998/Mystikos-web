@@ -29,7 +29,7 @@ const companionEligibilityError = ref('')
 const form = reactive({ nickname: '', gender: 'UNDISCLOSED' as Gender, avatarObjectKey: '', avatarUrl: '', birthDate: '', bio: '', regionCode: '', tagIds: [] as number[], privacyAnonymous: false })
 
 const companionCopy = computed(() => locale.value === 'zh' ? {
-  eyebrow: '陪玩身份', title: '把熟悉的游戏，分享给更多同行者。', body: '所有用户默认都是 Member。提交申请并通过线下考核后，你会额外获得 Companion 身份。', apply: '申请成为陪玩', checking: '正在校验资料…', view: '查看申请进度', security: '查看账号联系方式',
+  eyebrow: '陪玩身份', title: '把熟悉的游戏分享给更多同行者', body: '所有用户默认都是 Member。提交申请并通过线下考核后，你会额外获得 Companion 身份。', apply: '申请成为陪玩', checking: '正在校验资料…', view: '查看申请进度', security: '查看账号联系方式',
   contactEyebrow: '账号联系方式', contactTitle: '你的联络信号', contactBody: '邮箱和手机号都在个人资料中统一维护。任选一项完成验证，就能申请成为陪玩。', contactReady: '已满足申请条件', contactPending: '还需验证一项',
   incompleteTitle: '账号信息还不完善', incompleteBody: '申请成为陪玩前，请先验证邮箱或手机号其中一项。联系方式会保存在你的个人资料中。', later: '稍后处理', complete: '去完善并验证', close: '关闭提示',
   status: { PENDING: '申请中', ASSESSING: '考核中', APPROVED: '审核通过', REJECTED: '审核未通过' }
@@ -150,7 +150,7 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
         <div class="profile-overview-head">
           <div class="profile-overview-identity">
             <div class="profile-avatar" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="profile.avatarUrl || ''" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div>
-            <div><p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p><h1 id="profile-title">{{ t('profile.greeting') }}, {{ profile.nickname || userName || 'Stargazer' }}.</h1><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
+            <div><p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p><h1 id="profile-title">{{ t('profile.greeting') }} {{ profile.nickname || userName || 'Stargazer' }}</h1><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
           </div>
           <div class="profile-overview-actions">
             <button v-if="!editing" class="button button-ghost profile-edit-button" @click="startEditing">{{ t('profile.edit') }} <span>↗</span></button>

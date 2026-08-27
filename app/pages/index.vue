@@ -22,7 +22,7 @@ const activeRanking = computed(() => rankings[activeBoard.value])
   </section>
 
   <section id="companions" class="section-wrap companions-section">
-    <div class="section-heading"><div><p class="eyebrow"><span />{{ t('companions.eyebrow') }}</p><h2>{{ t('companions.title') }}</h2></div><a href="#ranking" class="text-link">{{ t('companions.all') }} <span>↗</span></a></div>
+    <div class="section-heading"><div><p class="eyebrow"><span />{{ t('companions.eyebrow') }}</p><h2>{{ t('companions.title') }}</h2></div><NuxtLink to="/companions" class="text-link">{{ t('companions.all') }} <span>↗</span></NuxtLink></div>
     <div class="companion-grid"><CompanionCard v-for="companion in companions" :key="companion.name" :companion="companion" /></div>
   </section>
 
@@ -35,5 +35,5 @@ const activeRanking = computed(() => rankings[activeBoard.value])
 
   <section class="intimacy-section"><div class="section-wrap intimacy-layout"><div class="intimacy-art"><div class="heart-orbit" /><div class="heart-shape">♡</div><div class="tiny-star star-a">✦</div><div class="tiny-star star-b">✧</div></div><div class="intimacy-copy"><p class="eyebrow"><span />{{ t('intimacy.eyebrow') }}</p><h2>{{ t('intimacy.title') }}</h2><p>{{ t('intimacy.body') }}</p><div class="affinity-card"><div><small>{{ t('intimacy.stage') }}</small><strong>03 · 1,680</strong></div><div class="affinity-progress"><i /></div><p>{{ t('intimacy.next') }}</p></div><div class="achievement-row"><small>{{ t('intimacy.gifts') }}</small><span>✿</span><span>⌁</span><span>♔</span><span class="locked">✧</span></div></div></div></section>
 
-  <section class="section-wrap shop-teaser"><div class="teaser-images"><img src="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=84" alt="Mystikos candle" /><img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=84" alt="Mystikos jewellery" /></div><div><p class="eyebrow"><span />{{ t('shop.eyebrow') }}</p><h2>{{ t('shop.title') }}</h2><p>{{ t('shop.body') }}</p><NuxtLink to="/shop" class="button button-primary">{{ t('shop.visit') }} <span>↗</span></NuxtLink></div></section>
+  <section class="shop-teaser-band"><div class="section-wrap shop-teaser"><div class="teaser-images"><img src="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=84" alt="Mystikos candle" /><img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=84" alt="Mystikos jewellery" /></div><div><p class="eyebrow"><span />{{ t('shop.eyebrow') }}</p><h2>{{ t('shop.title') }}</h2><p>{{ t('shop.body') }}</p><NuxtLink to="/shop" class="button button-primary">{{ t('shop.visit') }} <span>↗</span></NuxtLink></div></div></section>
 </template>
