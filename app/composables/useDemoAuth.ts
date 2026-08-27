@@ -1,5 +1,8 @@
+import { buildEncryptedPasswordLoginPayload } from '~/utils/loginCredentialEncryption.js'
+
 type ApiResponse<T> = { code: number; message?: string; data: T | null }
 type TokenResponse = { accessToken: string; refreshToken: string; userId: number }
+type LoginPublicKeyResponse = { keyId: string; algorithm: string; publicKey: string }
 type Channel = 'EMAIL' | 'PHONE'
 
 const channelFor = (identifier: string): Channel => /^\+?[\d\s-]{6,}$/.test(identifier) ? 'PHONE' : 'EMAIL'
@@ -24,7 +27,9 @@ export function useDemoAuth() {
     authenticated.value = true
   }
   const loginPassword = async (identifier: string, password: string) => {
-    const tokens = await request<TokenResponse>('auth/login', { method: 'POST', body: { channel: channelFor(identifier), identifier, credentialType: 'PASSWORD', credential: password } })
+    const keyData = await request<LoginPublicKeyResponse>('auth/public-key')
+    const body = await buildEncryptedPasswordLoginPayload(identifier, password, keyData)
+    const tokens = await request<TokenResponse>('auth/login', { method: 'POST', body })
     storeTokens(tokens, identifier.split('@')[0] || identifier)
   }
   const loginWithCode = async (identifier: string, code: string) => {

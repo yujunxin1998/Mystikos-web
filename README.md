@@ -22,7 +22,7 @@ Mystikos 是一个面向海外玩家的陪玩、公会与周边商城产品前�
 
 ### 认证
 
-- 账号密码登录：后端定义的邮箱或手机号格式
+- 账号密码登录：后端定义的邮箱或手机号格式；提交前获取服务端公钥并使用 RSA-OAEP/SHA-256 加密密码
 - 邮箱验证码登录与注册；发送成功后 60 秒内不可重复发送，按钮显示倒计时
 - Discord OAuth 登录入口（需部署时配置授权地址）
 - 登录 / 注册页采用固定深色双栏布局，与品牌星空视觉统一
@@ -88,6 +88,7 @@ npm run dev
 
 | 功能 | 后端接口 |
 | --- | --- |
+| 获取密码登录公钥 | `GET /api/v1/auth/public-key` |
 | 密码 / 验证码登录 | `POST /api/v1/auth/login` |
 | 发送验证码 | `POST /api/v1/auth/verification-codes` |
 | 注册 | `POST /api/v1/auth/register` |
@@ -95,6 +96,14 @@ npm run dev
 | OAuth 登录 | `POST /api/v1/auth/oauth/{provider}/login` |
 | 退出登录 | `POST /api/v1/auth/logout` |
 | 当前用户 | `GET /api/v1/auth/me` |
+
+### 密码登录加密
+
+密码登录不会把明文密码写入登录请求。前端首先通过同源代理请求 `GET /api/v1/auth/public-key`，导入接口返回的 X.509 SPKI PEM 公钥，再使用浏览器 Web Crypto API 按 `RSA-OAEP-256`（RSA-OAEP + SHA-256）加密密码。登录请求仅提交公钥版本 `keyId` 和 Base64 密文 `encryptedCredential`。
+
+公钥缺失、算法不是 `RSA-OAEP-256`、浏览器不支持 Web Crypto 或加密失败时，登录会直接终止，不会降级发送明文密码。验证码登录不需要 RSA 加密。注册接口目前仍按后端文档提交 `password`，待后端注册协议提供对应密文字段后再升级。
+
+> RSA 登录加密不能替代 HTTPS：生产环境仍必须使用 HTTPS，才能同时保护账号标识、验证码、Token、响应内容以及请求完整性。
 
 ### Discord OAuth 配置
 
