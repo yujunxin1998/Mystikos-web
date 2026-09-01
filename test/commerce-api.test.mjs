@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createCommerceApi, openCommerceCheckout, parseCreateOrderResponse, requireCommerceLogin, summarizeWishlist, wishlistLoginRedirect } from '../app/utils/commerce-api.mjs'
 
-test('商城客户端按 OpenAPI 契约发送全部商品、购物车、心愿单和订单请求', async () => {
+test('商城客户端按 OpenAPI 契约发送全部商品、购物车、心愿单、地址簿和订单请求', async () => {
   const calls = []
   const request = async (path, options = {}) => {
     calls.push({ path, options })
@@ -18,10 +18,16 @@ test('商城客户端按 OpenAPI 契约发送全部商品、购物车、心愿�
   await api.getWishlist()
   await api.addToWishlist(12)
   await api.removeFromWishlist(12)
-  await api.createOrder('浙江省杭州市西湖区')
+  await api.createOrder([12, 34], 5)
+  await api.buyNow(12, 2, 5)
   await api.getOrder(88)
   await api.cancelOrder(88)
-  await api.requestPayment(88)
+  await api.requestPayment(88, 'ALIPAY', 'PC_QR')
+  await api.listAddresses()
+  await api.createAddress({ addressType: 'DOMESTIC' })
+  await api.updateAddress(5, { addressType: 'DOMESTIC' })
+  await api.removeAddress(5)
+  await api.setDefaultAddress(5)
 
   assert.deepEqual(calls, [
     { path: 'products', options: {} },
@@ -32,19 +38,28 @@ test('商城客户端按 OpenAPI 契约发送全部商品、购物车、心愿�
     { path: 'wishlist', options: {} },
     { path: 'wishlist', options: { method: 'POST', body: { productId: 12 } } },
     { path: 'wishlist/12', options: { method: 'DELETE' } },
-    { path: 'orders', options: { method: 'POST', body: { shippingAddress: '浙江省杭州市西湖区' } } },
+    { path: 'orders', options: { method: 'POST', body: { productIds: [12, 34], addressId: 5 } } },
+    { path: 'orders/buy-now', options: { method: 'POST', body: { productId: 12, quantity: 2, addressId: 5 } } },
     { path: 'orders/88', options: {} },
     { path: 'orders/88/cancel', options: { method: 'POST' } },
-    { path: 'orders/88/payment', options: { method: 'POST' } }
+    { path: 'orders/88/payment', options: { method: 'POST', body: { provider: 'ALIPAY', scene: 'PC_QR' } } },
+    { path: 'addresses', options: {} },
+    { path: 'addresses', options: { method: 'POST', body: { addressType: 'DOMESTIC' } } },
+    { path: 'addresses/5', options: { method: 'PUT', body: { addressType: 'DOMESTIC' } } },
+    { path: 'addresses/5', options: { method: 'DELETE' } },
+    { path: 'addresses/5/default', options: { method: 'POST' } }
   ])
 })
 
-test('商城客户端在发请求前拒绝无效数量、ID 和空收货地址', async () => {
+test('商城客户端在发请求前拒绝无效数量、ID、空商品列表和空地址', async () => {
   const api = createCommerceApi(async () => assert.fail('invalid input must not make a request'))
 
   await assert.rejects(() => api.addToCart(3, 0), /数量/)
   await assert.rejects(() => api.getProduct(0), /ID/)
-  await assert.rejects(() => api.createOrder('   '), /收货地址/)
+  await assert.rejects(() => api.createOrder([], 5), /商品/)
+  await assert.rejects(() => api.createOrder([1], null), /地址/)
+  await assert.rejects(() => api.buyNow(1, 0, 5), /数量/)
+  await assert.rejects(() => api.buyNow(1, 2, null), /地址/)
 })
 
 test('从购物车进入结算时关闭购物车遮罩并打开结算弹窗', () => {
@@ -80,19 +95,21 @@ test('心愿单登录回跳使用可清除的一次性标记而不是持久 hash
   assert.equal(wishlistLoginRedirect(), '/auth?redirect=%2Fshop%3FopenWishlist%3D1')
 })
 
-test('雪花订单号在详情、取消和支付路径中保持原始精度', async () => {
+test('雪花订单号在详情、取消、支付和地址路径中保持原始精度', async () => {
   const paths = []
   const api = createCommerceApi(async path => { paths.push(path) })
   const orderId = '2092533063002484700'
 
   await api.getOrder(orderId)
   await api.cancelOrder(orderId)
-  await api.requestPayment(orderId)
+  await api.requestPayment(orderId, 'STRIPE')
+  await api.updateAddress(orderId, { addressType: 'DOMESTIC' })
 
   assert.deepEqual(paths, [
     'orders/2092533063002484700',
     'orders/2092533063002484700/cancel',
-    'orders/2092533063002484700/payment'
+    'orders/2092533063002484700/payment',
+    'addresses/2092533063002484700'
   ])
 })
 

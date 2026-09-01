@@ -99,6 +99,7 @@ const confirmLogout = async () => {
         <NuxtLink to="/" @click="close">{{ t('nav.home') }}</NuxtLink>
         <NuxtLink to="/companions" @click="close">{{ t('nav.companions') }}</NuxtLink>
         <NuxtLink to="/shop" @click="close">{{ t('nav.shop') }}</NuxtLink>
+        <NuxtLink v-if="authenticated" to="/bookings/cart" @click="close">预约车</NuxtLink>
         <NuxtLink to="/#membership" @click="close">{{ t('nav.membership') }}</NuxtLink>
       </nav>
       <div class="header-actions">

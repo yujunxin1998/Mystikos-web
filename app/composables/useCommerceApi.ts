@@ -5,8 +5,26 @@ export type CartLine = { productId: number; productName: string; unitPrice: numb
 export type WishlistLine = { productId: number; productName: string; unitPrice: number; addedAt: string }
 export type OrderLine = { productId: number; productNameSnapshot: string; unitPriceSnapshot: number; quantity: number; subtotal: number }
 export type CommerceId = number | string
-export type CommerceOrder = { orderId: CommerceId; patronId: CommerceId; items: OrderLine[]; totalAmount: number; shippingAddress: string; status: string; createdAt: string }
-export type PaymentCheckout = { intentId: number; clientSecret: string; status: string }
+export type CommerceOrder = { orderId: CommerceId; patronId: CommerceId; items: OrderLine[]; totalAmount: number; shippingAddress: string; status: string; createdAt: string; expiresAt: string | null }
+export type PaymentProvider = 'STRIPE' | 'ALIPAY' | 'WECHAT_PAY'
+export type PaymentScene = 'DEFAULT' | 'PC_QR' | 'WAP_H5' | 'APP'
+export type PaymentCheckout = { intentId: number; payloadType: string; payload: Record<string, string>; status: string }
+export type AddressType = 'DOMESTIC' | 'OVERSEAS'
+export type AddressPayload = {
+  addressType: AddressType
+  recipientName: string
+  phone: string
+  countryCode: string
+  provinceCode?: string | null
+  city?: string | null
+  district?: string | null
+  addressLine1: string
+  addressLine2?: string | null
+  stateRegion?: string | null
+  postalCode?: string | null
+  setDefault: boolean
+}
+export type Address = AddressPayload & { id: number; isDefault: boolean }
 
 type ApiResponse<T> = { code: number; message?: string; data: T | null }
 
@@ -31,9 +49,15 @@ export function useCommerceApi() {
     getWishlist(): Promise<WishlistLine[]>
     addToWishlist(productId: number): Promise<void>
     removeFromWishlist(productId: number): Promise<void>
-    createOrder(shippingAddress: string): Promise<string>
+    createOrder(productIds: number[], addressId: number): Promise<string>
+    buyNow(productId: number, quantity: number, addressId: number): Promise<string>
     getOrder(orderId: CommerceId): Promise<CommerceOrder>
     cancelOrder(orderId: CommerceId): Promise<void>
-    requestPayment(orderId: CommerceId): Promise<PaymentCheckout>
+    requestPayment(orderId: CommerceId, provider: PaymentProvider, scene?: PaymentScene): Promise<PaymentCheckout>
+    listAddresses(): Promise<Address[]>
+    createAddress(payload: AddressPayload): Promise<number>
+    updateAddress(addressId: number, payload: AddressPayload): Promise<void>
+    removeAddress(addressId: number): Promise<void>
+    setDefaultAddress(addressId: number): Promise<void>
   }
 }

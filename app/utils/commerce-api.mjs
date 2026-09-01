@@ -50,13 +50,24 @@ export function createCommerceApi(request) {
     getWishlist: async () => request('wishlist'),
     addToWishlist: async (productId) => request('wishlist', { method: 'POST', body: { productId: positiveId(productId) } }),
     removeFromWishlist: async (productId) => request(`wishlist/${positiveId(productId)}`, { method: 'DELETE' }),
-    createOrder: async (shippingAddress) => {
-      const address = shippingAddress.trim()
-      if (!address) throw new Error('请填写收货地址')
-      return request('orders', { method: 'POST', body: { shippingAddress: address } })
+    createOrder: async (productIds, addressId) => {
+      if (!Array.isArray(productIds) || !productIds.length) throw new Error('请至少选择一件商品')
+      if (!addressId) throw new Error('请选择收货地址')
+      return request('orders', { method: 'POST', body: { productIds: productIds.map(positiveId), addressId: positiveId(addressId) } })
+    },
+    buyNow: async (productId, quantity, addressId) => {
+      const normalizedQuantity = Number(quantity)
+      if (!Number.isInteger(normalizedQuantity) || normalizedQuantity < 1) throw new Error('商品数量必须大于 0')
+      if (!addressId) throw new Error('请选择收货地址')
+      return request('orders/buy-now', { method: 'POST', body: { productId: positiveId(productId), quantity: normalizedQuantity, addressId: positiveId(addressId) } })
     },
     getOrder: async (orderId) => request(`orders/${positiveId(orderId)}`),
     cancelOrder: async (orderId) => request(`orders/${positiveId(orderId)}/cancel`, { method: 'POST' }),
-    requestPayment: async (orderId) => request(`orders/${positiveId(orderId)}/payment`, { method: 'POST' })
+    requestPayment: async (orderId, provider, scene) => request(`orders/${positiveId(orderId)}/payment`, { method: 'POST', body: { provider, scene } }),
+    listAddresses: async () => request('addresses'),
+    createAddress: async (payload) => request('addresses', { method: 'POST', body: payload }),
+    updateAddress: async (addressId, payload) => request(`addresses/${positiveId(addressId)}`, { method: 'PUT', body: payload }),
+    removeAddress: async (addressId) => request(`addresses/${positiveId(addressId)}`, { method: 'DELETE' }),
+    setDefaultAddress: async (addressId) => request(`addresses/${positiveId(addressId)}/default`, { method: 'POST' })
   }
 }

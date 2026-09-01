@@ -48,7 +48,7 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
 </script>
 
 <template>
-  <main class="companion-directory section-wrap">
+  <div class="companion-directory section-wrap">
     <header class="directory-hero"><div><p class="eyebrow"><span />{{ t('directory.eyebrow') }}</p><h1>{{ t('directory.title') }}</h1></div><p><strong>{{ t('directory.open') }}</strong>{{ t('directory.intro') }}</p></header>
     <section class="directory-toolbar" :aria-label="t('directory.filterLabel')"><label class="directory-search"><span aria-hidden="true">⌕</span><input v-model="query" type="search" :placeholder="t('directory.search')"></label><div class="directory-filters"><button type="button" :class="{ active: activeTagId === null }" @click="selectTag(null)">{{ t('directory.all') }}</button><button v-for="tag in tags" :key="tag.id" type="button" :class="{ active: activeTagId === tag.id }" @click="selectTag(tag.id)">{{ tag.label }}</button></div></section>
     <section class="directory-results">
@@ -64,7 +64,7 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
       </div>
       <nav v-if="!loading && !error && pageCount > 1" class="directory-pagination" :aria-label="t('directory.pagination')"><button type="button" :disabled="pageNum <= 1" @click="goPage(pageNum - 1)">{{ t('directory.previous') }}</button><span>{{ t('directory.page', { page: pageNum, pages: pageCount }) }}</span><button type="button" :disabled="pageNum >= pageCount" @click="goPage(pageNum + 1)">{{ t('directory.next') }}</button></nav>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

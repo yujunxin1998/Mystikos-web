@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { CommerceOrder, PaymentCheckout, PaymentProvider, PaymentScene } from '../../../composables/useCommerceApi'
+import type { BookingOrderView } from '../../composables/useBookingApi'
+import type { PaymentCheckout, PaymentProvider, PaymentScene } from '../../composables/useCommerceApi'
 
 const route = useRoute()
-const api = useCommerceApi()
-const order = ref<CommerceOrder | null>(null)
+const api = useBookingApi()
+const booking = ref<BookingOrderView | null>(null)
 const payment = ref<PaymentCheckout | null>(null)
 const loading = ref(true)
 const working = ref(false)
 const error = ref('')
-const orderId = computed(() => String(route.params.id))
+const bookingId = computed(() => String(route.params.id))
 const money = (value: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value)
 
 const provider = ref<PaymentProvider>('STRIPE')
@@ -24,64 +25,64 @@ const countdownLabel = computed(() => {
   const seconds = remainingSeconds.value % 60
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 })
-
 const startCountdown = () => {
   if (countdownTimer) clearInterval(countdownTimer)
   const tick = () => {
-    if (!order.value?.expiresAt) { remainingSeconds.value = 0; return }
-    const diff = Math.floor((new Date(order.value.expiresAt).getTime() - Date.now()) / 1000)
-    remainingSeconds.value = Math.max(diff, 0)
+    if (!booking.value?.expiresAt) { remainingSeconds.value = 0; return }
+    remainingSeconds.value = Math.max(Math.floor((new Date(booking.value.expiresAt).getTime() - Date.now()) / 1000), 0)
   }
   tick()
   countdownTimer = setInterval(tick, 1000)
 }
 
-const loadOrder = async () => {
+const payableStatus = (status: string) => status === 'DRAFT' || status === 'PENDING_PAYMENT'
+
+const loadBooking = async () => {
   loading.value = true
   error.value = ''
   try {
-    order.value = await api.getOrder(orderId.value)
-    if (order.value.status === 'DRAFT' || order.value.status === 'PENDING_PAYMENT') startCountdown()
-  }
-  catch (cause) { error.value = cause instanceof Error ? cause.message : '订单加载失败' }
+    booking.value = await api.getBooking(bookingId.value)
+    if (payableStatus(booking.value.status)) startCountdown()
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '预约加载失败' }
   finally { loading.value = false }
 }
 
-const cancelOrder = async () => {
+const cancelBooking = async () => {
   working.value = true
-  try { await api.cancelOrder(orderId.value); await loadOrder() }
-  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消订单失败' }
+  try { await api.cancelBooking(bookingId.value); await loadBooking() }
+  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消预约失败' }
   finally { working.value = false }
 }
 
 const requestPayment = async () => {
   working.value = true
   error.value = ''
-  try { payment.value = await api.requestPayment(orderId.value, provider.value, scene.value); await loadOrder() }
+  try { payment.value = await api.requestBookingPayment(bookingId.value, provider.value, scene.value); await loadBooking() }
   catch (cause) { error.value = cause instanceof Error ? cause.message : '发起支付失败' }
   finally { working.value = false }
 }
 
 watch(provider, next => { scene.value = scenesByProvider[next][0] ?? 'DEFAULT' })
-onMounted(loadOrder)
+onMounted(loadBooking)
 onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
 </script>
 
 <template>
   <section class="commerce-order-page section-wrap">
-    <NuxtLink to="/shop" class="commerce-back">← 返回商城</NuxtLink>
-    <p v-if="loading" class="empty-state">正在读取订单…</p>
-    <p v-else-if="error && !order" class="commerce-alert" role="alert">{{ error }}</p>
-    <template v-else-if="order">
-      <header><div><p class="eyebrow"><span />ORDER {{ order.orderId }}</p><h1>订单详情</h1></div><span class="order-status">{{ order.status }}</span></header>
+    <NuxtLink to="/companions" class="commerce-back">← 返回陪玩列表</NuxtLink>
+    <p v-if="loading" class="empty-state">正在读取预约…</p>
+    <p v-else-if="error && !booking" class="commerce-alert" role="alert">{{ error }}</p>
+    <template v-else-if="booking">
+      <header><div><p class="eyebrow"><span />BOOKING {{ booking.id }}</p><h1>预约详情</h1></div><span class="order-status">{{ booking.status }}</span></header>
       <p v-if="error" class="commerce-alert" role="alert">{{ error }}</p>
-      <p v-if="countdownLabel && (order.status === 'DRAFT' || order.status === 'PENDING_PAYMENT')" class="order-countdown">
-        请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时订单将自动失效
-      </p>
-      <section class="order-card"><article v-for="item in order.items" :key="item.productId"><div><h2>{{ item.productNameSnapshot }}</h2><p>{{ money(item.unitPriceSnapshot) }} × {{ item.quantity }}</p></div><strong>{{ money(item.subtotal) }}</strong></article><footer><span>订单总额</span><strong>{{ money(order.totalAmount) }}</strong></footer></section>
-      <section class="order-meta"><div><small>收货地址</small><p>{{ order.shippingAddress }}</p></div><div><small>创建时间</small><p>{{ new Date(order.createdAt).toLocaleString() }}</p></div></section>
+      <p v-if="countdownLabel && payableStatus(booking.status)" class="order-countdown">请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时预约将自动失效</p>
 
-      <section v-if="order.status === 'DRAFT' || order.status === 'PENDING_PAYMENT'" class="payment-method-picker">
+      <section class="order-card">
+        <article><div><h2>陪玩 #{{ booking.companionId }}</h2><p>{{ new Date(booking.start).toLocaleString() }} → {{ new Date(booking.end).toLocaleString() }} · {{ booking.durationHours }} 小时</p></div><strong>{{ money(booking.priceSnapshot) }}</strong></article>
+        <footer><span>合计</span><strong>{{ money(booking.priceSnapshot) }}</strong></footer>
+      </section>
+
+      <section v-if="payableStatus(booking.status)" class="payment-method-picker">
         <p class="eyebrow"><span />PAYMENT METHOD</p>
         <div class="provider-list">
           <button v-for="p in (['STRIPE', 'ALIPAY', 'WECHAT_PAY'] as PaymentProvider[])" :key="p" type="button" :class="{ active: provider === p }" @click="provider = p">{{ p === 'STRIPE' ? '信用卡（Stripe）' : p === 'ALIPAY' ? '支付宝' : '微信支付' }}</button>
@@ -91,7 +92,7 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
         </div>
       </section>
 
-      <div class="commerce-actions"><button class="button" :disabled="working" @click="cancelOrder">取消订单</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
+      <div class="commerce-actions"><button class="button" :disabled="working" @click="cancelBooking">取消预约</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
       <section v-if="payment" class="payment-notice">
         <h2>支付已初始化</h2>
         <p>支付状态：{{ payment.status }}，结果类型：{{ payment.payloadType }}。</p>

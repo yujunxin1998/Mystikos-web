@@ -9,8 +9,9 @@ const channelFor = (identifier: string): Channel => /^\+?[\d\s-]{6,}$/.test(iden
 
 export function useDemoAuth() {
   const config = useRuntimeConfig()
-  const accessToken = useCookie<string | null>('mystikos_access_token', { sameSite: 'lax' })
-  const refreshToken = useCookie<string | null>('mystikos_refresh_token', { sameSite: 'lax' })
+  const cookieOptions = { sameSite: 'lax' as const, secure: import.meta.env.PROD }
+  const accessToken = useCookie<string | null>('mystikos_access_token', cookieOptions)
+  const refreshToken = useCookie<string | null>('mystikos_refresh_token', cookieOptions)
   const authenticated = useState('mystikos-authenticated', () => Boolean(accessToken.value))
   const userName = useState('mystikos-user-name', () => '')
   const userAvatarUrl = useState('mystikos-user-avatar-url', () => '')
