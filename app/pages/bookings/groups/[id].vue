@@ -42,14 +42,14 @@ const loadGroup = async () => {
   try {
     group.value = await api.getBookingGroup(groupId.value)
     if (payableStatus(group.value.status)) startCountdown()
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '预约组加载失败' }
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '点单组加载失败' }
   finally { loading.value = false }
 }
 
 const cancelGroup = async () => {
   working.value = true
   try { await api.cancelGroup(groupId.value); await loadGroup() }
-  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消预约组失败' }
+  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消点单组失败' }
   finally { working.value = false }
 }
 
@@ -68,13 +68,13 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
 
 <template>
   <section class="commerce-order-page section-wrap">
-    <NuxtLink to="/bookings/cart" class="commerce-back">← 返回预约购物车</NuxtLink>
-    <p v-if="loading" class="empty-state">正在读取预约组…</p>
+    <NuxtLink to="/bookings/cart" class="commerce-back">← 返回点单车</NuxtLink>
+    <p v-if="loading" class="empty-state">正在读取点单组…</p>
     <p v-else-if="error && !group" class="commerce-alert" role="alert">{{ error }}</p>
     <template v-else-if="group">
       <header><div><p class="eyebrow"><span />BOOKING GROUP {{ group.id }}</p><h1>合并支付</h1></div><span class="order-status">{{ group.status }}</span></header>
       <p v-if="error" class="commerce-alert" role="alert">{{ error }}</p>
-      <p v-if="countdownLabel && payableStatus(group.status)" class="order-countdown">请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时预约组将自动失效</p>
+      <p v-if="countdownLabel && payableStatus(group.status)" class="order-countdown">请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时点单组将自动失效</p>
 
       <section class="order-card">
         <article v-for="booking in group.bookings" :key="String(booking.id)">
@@ -97,8 +97,8 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
         </div>
       </section>
 
-      <div v-if="payableStatus(group.status)" class="commerce-actions"><button class="button" :disabled="working" @click="cancelGroup">取消预约组</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
-      <p v-else class="hint">支付后每条预约会各自进入撮合流程，请到"我的预约"分别查看进度。</p>
+      <div v-if="payableStatus(group.status)" class="commerce-actions"><button class="button" :disabled="working" @click="cancelGroup">取消点单组</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
+      <p v-else class="hint">支付后每条点单会各自进入撮合流程，请到「我的点单」分别查看进度。</p>
 
       <section v-if="payment" class="payment-notice">
         <h2>支付已初始化</h2>

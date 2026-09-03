@@ -45,6 +45,10 @@ const addWishlistItemToCart = async (productId: number) => {
   try { await commerceApi.addToCart(productId, 1) } catch (cause) { wishlistError.value = cause instanceof Error ? cause.message : '加入购物车失败' }
   finally { wishlistActionId.value = null }
 }
+const goMine = async () => {
+  close()
+  await navigateTo(authenticated.value ? '/profile' : '/auth')
+}
 const headerInitial = computed(() => userName.value.trim() ? userName.value.trim().slice(0, 1).toLocaleUpperCase() : '✦')
 watch(userAvatarUrl, () => { avatarFailed.value = false })
 onMounted(async () => {
@@ -80,6 +84,7 @@ const confirmLogout = async () => {
   await logout()
   showLogoutConfirm.value = false
   close()
+  closeProfileMenu()
   await navigateTo('/')
 }
 </script>
@@ -96,26 +101,37 @@ const confirmLogout = async () => {
 
     <div class="nav-wrap" :class="{ 'is-open': open }">
       <nav aria-label="Primary navigation">
-        <NuxtLink to="/" @click="close">{{ t('nav.home') }}</NuxtLink>
         <NuxtLink to="/companions" @click="close">{{ t('nav.companions') }}</NuxtLink>
         <NuxtLink to="/shop" @click="close">{{ t('nav.shop') }}</NuxtLink>
-        <NuxtLink v-if="authenticated" to="/bookings/cart" @click="close">预约车</NuxtLink>
-        <NuxtLink to="/#membership" @click="close">{{ t('nav.membership') }}</NuxtLink>
+        <NuxtLink v-if="authenticated" to="/profile" @click="close">{{ t('nav.mine') }}</NuxtLink>
+        <button v-else type="button" class="nav-text-button" @click="goMine">{{ t('nav.mine') }}</button>
       </nav>
       <div class="header-actions">
-        <button class="wishlist-count" type="button" aria-label="查看心愿单" @click="openWishlist">♡ <span>{{ wishlistSummary.count }}</span></button>
+        <button class="header-icon-btn wishlist-count" type="button" :aria-label="t('nav.wishlist')" @click="openWishlist">
+          <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+            <path d="M12 20.4s-6.8-4.2-9.1-8.1C1.3 9.7 2.1 6.4 5 5.3c1.8-.7 3.8-.1 4.9 1.4L12 9l2.1-2.3c1.1-1.5 3.1-2.1 4.9-1.4 2.9 1.1 3.7 4.4 2.1 7-2.3 3.9-9.1 8.1-9.1 8.1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+          <span v-if="wishlistSummary.count > 0" class="wishlist-badge">{{ wishlistSummary.count > 99 ? '99+' : wishlistSummary.count }}</span>
+        </button>
+        <NuxtLink v-if="authenticated" to="/bookings/cart" class="header-icon-btn booking-cart-link" :aria-label="t('nav.bookingCart')" :title="t('nav.bookingCart')" @click="close">
+          <svg class="header-icon header-icon--cart" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+            <path d="M3.2 5.2h2.1l1.55 11.2a1.9 1.9 0 0 0 1.88 1.65h9.55a1.9 1.9 0 0 0 1.87-1.55L21.2 8.1H7.35" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10.1" cy="20.35" r="1.35" fill="currentColor"/>
+            <circle cx="17.3" cy="20.35" r="1.35" fill="currentColor"/>
+          </svg>
+        </NuxtLink>
         <div v-if="authenticated" class="profile-menu">
           <button ref="profileTriggerRef" class="profile-chip" type="button" :title="t('profile.title')" :aria-expanded="profileMenuOpen" aria-haspopup="menu" @click="profileMenuOpen = !profileMenuOpen"><img v-if="userAvatarUrl && !avatarFailed" :src="userAvatarUrl" alt="" @error="avatarFailed = true"><span v-else>{{ headerInitial }}</span></button>
           <div v-if="profileMenuOpen" ref="profileMenuRef" class="profile-menu-popover" role="menu">
             <div class="profile-menu-heading"><span>{{ userName || 'Stargazer' }}</span><small>{{ companionApproved ? 'COMPANION' : 'MEMBER' }}</small></div>
             <NuxtLink to="/profile" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.profileHome') }}</span><small>{{ t('nav.profileHomeHint') }}</small></NuxtLink>
             <NuxtLink v-if="companionApproved" to="/companion/card" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.companionCard') }}</span><small>{{ t('nav.companionCardHint') }}</small></NuxtLink>
+            <button type="button" role="menuitem" class="profile-menu-action" @click="toggleTheme(); closeProfileMenu()"><span>{{ t('nav.theme') }}</span><small>{{ t('nav.themeHint') }}</small></button>
+            <button type="button" role="menuitem" class="profile-menu-action" @click="toggleLocale(); closeProfileMenu()"><span>{{ t('nav.language') }}</span><small>{{ t('nav.languageHint') }}</small></button>
+            <button type="button" role="menuitem" class="profile-menu-action danger" @click="closeProfileMenu(); showLogoutConfirm = true"><span>{{ t('auth.logout') }}</span><small>{{ t('nav.logoutHint') }}</small></button>
           </div>
         </div>
-        <button v-if="authenticated" class="logout-trigger" :title="t('auth.logout')" @click="showLogoutConfirm = true">{{ t('auth.logout') }}</button>
         <NuxtLink v-else to="/auth" class="auth-link" @click="close">{{ t('auth.login') }}</NuxtLink>
-        <button class="icon-button" :aria-label="t('nav.theme')" @click="toggleTheme"><span aria-hidden="true">◐</span></button>
-        <button class="language-button" @click="toggleLocale">{{ locale === 'en' ? '中' : 'EN' }}</button>
       </div>
     </div>
   </header>
@@ -124,17 +140,17 @@ const confirmLogout = async () => {
     <Transition name="fade">
       <div v-if="wishlistOpen" class="commerce-drawer-backdrop" @click.self="wishlistOpen = false">
         <aside class="commerce-drawer wishlist-drawer" aria-label="心愿单汇总">
-          <header><div><p class="eyebrow"><span />WISHLIST</p><h2>心愿单</h2><p>{{ wishlistSummary.count }} 件收藏</p></div><button class="modal-close" aria-label="关闭心愿单" @click="wishlistOpen = false">×</button></header>
+          <header><div><p class="eyebrow"><span />{{ t('nav.wishlistEyebrow') }}</p><h2>{{ t('nav.wishlist') }}</h2><p>{{ t('nav.wishlistCount', { count: wishlistSummary.count }) }}</p></div><button class="modal-close" :aria-label="t('modal.close')" @click="wishlistOpen = false">×</button></header>
           <p v-if="wishlistError" class="commerce-alert" role="alert">{{ wishlistError }}</p>
-          <p v-if="wishlistLoading && !wishlist.length" class="empty-state">正在读取心愿单…</p>
+          <p v-if="wishlistLoading && !wishlist.length" class="empty-state">{{ t('nav.wishlistLoading') }}</p>
           <div v-else-if="wishlist.length" class="wishlist-lines">
             <article v-for="line in wishlist" :key="line.productId">
-              <div><h3>{{ line.productName }}</h3><p>收藏于 {{ new Date(line.addedAt).toLocaleDateString() }}</p></div><strong>{{ money(line.unitPrice) }}</strong>
-              <div class="wishlist-line-actions"><button :disabled="wishlistActionId === line.productId" @click="removeWishlistItem(line.productId)">移除</button><button :disabled="wishlistActionId === line.productId" @click="addWishlistItemToCart(line.productId)">加入购物车</button></div>
+              <div><h3>{{ line.productName }}</h3><p>{{ t('nav.wishlistAdded', { date: new Date(line.addedAt).toLocaleDateString() }) }}</p></div><strong>{{ money(line.unitPrice) }}</strong>
+              <div class="wishlist-line-actions"><button :disabled="wishlistActionId === line.productId" @click="removeWishlistItem(line.productId)">{{ t('modal.remove') }}</button><button :disabled="wishlistActionId === line.productId" @click="addWishlistItemToCart(line.productId)">{{ t('nav.wishlistToCart') }}</button></div>
             </article>
           </div>
-          <p v-else class="empty-state">还没有收藏商品。</p>
-          <footer v-if="wishlist.length"><p><span>共 {{ wishlistSummary.count }} 件</span><strong>{{ money(wishlistSummary.total) }}</strong></p><button class="button button-primary" @click="wishlistOpen = false; navigateTo('/shop')">继续逛商城</button></footer>
+          <p v-else class="empty-state">{{ t('nav.wishlistEmpty') }}</p>
+          <footer v-if="wishlist.length"><p><span>{{ t('nav.wishlistCount', { count: wishlistSummary.count }) }}</span><strong>{{ money(wishlistSummary.total) }}</strong></p><button class="button button-primary" @click="wishlistOpen = false; navigateTo('/shop')">{{ t('nav.wishlistContinue') }}</button></footer>
         </aside>
       </div>
     </Transition>

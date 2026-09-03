@@ -2,10 +2,10 @@ const positiveId = (value) => {
   if (typeof value === 'string') {
     const id = value.trim()
     if (/^[1-9]\d*$/.test(id)) return id
-    throw new Error('预约资源 ID 无效')
+    throw new Error('点单资源 ID 无效')
   }
   const id = Number(value)
-  if (!Number.isSafeInteger(id) || id <= 0) throw new Error('预约资源 ID 无效')
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error('点单资源 ID 无效')
   return id
 }
 
@@ -30,7 +30,7 @@ export function createBookingApi(request) {
       request('booking-cart', { method: 'POST', body: { companionId: positiveId(companionId), start, durationHours } }),
     removeBookingCartLine: async (lineId) => request(`booking-cart/${positiveId(lineId)}`, { method: 'DELETE' }),
     checkoutBookingCart: async (lineIds) => {
-      if (!Array.isArray(lineIds) || !lineIds.length) throw new Error('请至少选择一条预约')
+      if (!Array.isArray(lineIds) || !lineIds.length) throw new Error('请至少选择一条点单')
       return request('booking-cart/checkout', { method: 'POST', body: { lineIds: lineIds.map(positiveId) } })
     },
 

@@ -43,14 +43,14 @@ const loadBooking = async () => {
   try {
     booking.value = await api.getBooking(bookingId.value)
     if (payableStatus(booking.value.status)) startCountdown()
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '预约加载失败' }
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '点单加载失败' }
   finally { loading.value = false }
 }
 
 const cancelBooking = async () => {
   working.value = true
   try { await api.cancelBooking(bookingId.value); await loadBooking() }
-  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消预约失败' }
+  catch (cause) { error.value = cause instanceof Error ? cause.message : '取消点单失败' }
   finally { working.value = false }
 }
 
@@ -70,12 +70,12 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
 <template>
   <section class="commerce-order-page section-wrap">
     <NuxtLink to="/companions" class="commerce-back">← 返回陪玩列表</NuxtLink>
-    <p v-if="loading" class="empty-state">正在读取预约…</p>
+    <p v-if="loading" class="empty-state">正在读取点单…</p>
     <p v-else-if="error && !booking" class="commerce-alert" role="alert">{{ error }}</p>
     <template v-else-if="booking">
-      <header><div><p class="eyebrow"><span />BOOKING {{ booking.id }}</p><h1>预约详情</h1></div><span class="order-status">{{ booking.status }}</span></header>
+      <header><div><p class="eyebrow"><span />BOOKING {{ booking.id }}</p><h1>点单详情</h1></div><span class="order-status">{{ booking.status }}</span></header>
       <p v-if="error" class="commerce-alert" role="alert">{{ error }}</p>
-      <p v-if="countdownLabel && payableStatus(booking.status)" class="order-countdown">请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时预约将自动失效</p>
+      <p v-if="countdownLabel && payableStatus(booking.status)" class="order-countdown">请在 <strong>{{ countdownLabel }}</strong> 内完成支付，超时点单将自动失效</p>
 
       <section class="order-card">
         <article><div><h2>陪玩 #{{ booking.companionId }}</h2><p>{{ new Date(booking.start).toLocaleString() }} → {{ new Date(booking.end).toLocaleString() }} · {{ booking.durationHours }} 小时</p></div><strong>{{ money(booking.priceSnapshot) }}</strong></article>
@@ -92,7 +92,7 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
         </div>
       </section>
 
-      <div class="commerce-actions"><button class="button" :disabled="working" @click="cancelBooking">取消预约</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
+      <div class="commerce-actions"><button class="button" :disabled="working" @click="cancelBooking">取消点单</button><button class="button button-primary" :disabled="working" @click="requestPayment">发起支付</button></div>
       <section v-if="payment" class="payment-notice">
         <h2>支付已初始化</h2>
         <p>支付状态：{{ payment.status }}，结果类型：{{ payment.payloadType }}。</p>

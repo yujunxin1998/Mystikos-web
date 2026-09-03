@@ -54,13 +54,26 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
     <section class="directory-results">
       <div class="directory-heading"><h2>{{ t('directory.heading') }}</h2><p>{{ t('directory.count', { count: total }) }}</p></div>
       <div class="directory-grid">
-        <div v-if="loading" class="directory-empty"><strong>{{ t('directory.loading') }}</strong></div>
-        <div v-else-if="error" class="directory-empty"><strong>{{ t('directory.loadError') }}</strong><span>{{ error }}</span><button type="button" class="button" @click="loadCompanions">{{ t('directory.retry') }}</button></div>
+        <div v-if="loading" class="directory-empty" role="status">
+          <span class="directory-empty-mark" aria-hidden="true">✦</span>
+          <strong>{{ t('directory.loading') }}</strong>
+          <span>{{ t('directory.loadingHint') }}</span>
+        </div>
+        <div v-else-if="error" class="directory-empty is-error" role="alert">
+          <span class="directory-empty-mark" aria-hidden="true">!</span>
+          <strong>{{ t('directory.loadError') }}</strong>
+          <span>{{ t('directory.retryHint') }}</span>
+          <button type="button" class="button button-primary directory-empty-action" @click="loadCompanions">{{ t('directory.retry') }} <span aria-hidden="true">↻</span></button>
+        </div>
         <article v-for="person in companions" v-else :key="person.userId" class="directory-card" :style="{ '--companion-accent': companionAccent(person.userId) }">
           <button class="directory-favorite" :class="{ saved: saved.includes(person.userId) }" type="button" :aria-label="t(saved.includes(person.userId) ? 'directory.unsave' : 'directory.save', { name: person.nickname })" @click="toggleSaved(person.userId)">{{ saved.includes(person.userId) ? '♥' : '♡' }}</button>
           <NuxtLink :to="`/companions/${person.userId}`"><div class="directory-portrait"><img v-if="person.coverPhotoUrl || person.avatarUrl" :src="person.coverPhotoUrl || person.avatarUrl || ''" :alt="person.nickname"><span v-else>{{ person.nickname?.charAt(0).toUpperCase() || '?' }}</span><em><i />{{ person.availability || t('directory.available') }}</em></div><div class="directory-card-body"><div class="directory-person-title"><span class="directory-mini-avatar"><img v-if="person.avatarUrl" :src="person.avatarUrl" :alt="person.nickname"><b v-else>{{ person.nickname?.charAt(0).toUpperCase() || '?' }}</b></span><h3>{{ person.nickname }}</h3></div><p>{{ person.tagline || person.bio || t('directory.noTagline') }}</p><div class="directory-tags"><span v-for="tag in person.tags" :key="tag.id">{{ tag.label }}</span></div><footer><span>{{ t('directory.verified') }}</span><b>{{ t('directory.viewCard') }} →</b></footer></div></NuxtLink>
         </article>
-        <div v-if="!loading && !error && !companions.length" class="directory-empty"><strong>{{ t('directory.empty') }}</strong><span>{{ t('directory.emptyHint') }}</span></div>
+        <div v-if="!loading && !error && !companions.length" class="directory-empty">
+          <span class="directory-empty-mark" aria-hidden="true">✧</span>
+          <strong>{{ t('directory.empty') }}</strong>
+          <span>{{ t('directory.emptyHint') }}</span>
+        </div>
       </div>
       <nav v-if="!loading && !error && pageCount > 1" class="directory-pagination" :aria-label="t('directory.pagination')"><button type="button" :disabled="pageNum <= 1" @click="goPage(pageNum - 1)">{{ t('directory.previous') }}</button><span>{{ t('directory.page', { page: pageNum, pages: pageCount }) }}</span><button type="button" :disabled="pageNum >= pageCount" @click="goPage(pageNum + 1)">{{ t('directory.next') }}</button></nav>
     </section>
@@ -72,7 +85,7 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
 .directory-pagination { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 30px; }
 .directory-pagination button { padding: 9px 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); color: var(--ink); }
 .directory-pagination button:disabled { cursor: not-allowed; opacity: .4; }
-.directory-pagination span { color: var(--muted); font: 10px 'DM Mono', monospace; }
+.directory-pagination span { color: var(--muted); font: var(--text-sm) var(--font-mono), monospace; }
 .directory-person-title { display:flex!important; align-items:center; justify-content:flex-start!important; gap:10px; }
 .directory-mini-avatar { width:38px; height:38px; display:grid; flex:0 0 38px; place-items:center; overflow:hidden; border:1px solid var(--line); border-radius:50%; background:linear-gradient(145deg,var(--lav),var(--lav-deep)); color:var(--night); }
 .directory-mini-avatar img { width:100%; height:100%; object-fit:cover; }

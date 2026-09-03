@@ -141,11 +141,6 @@ onBeforeUnmount(clearCooldownTimer)
       <div class="auth-art-stage" aria-hidden="true">
         <img class="auth-moon-slice" :src="moonSlice" alt="">
       </div>
-      <p class="auth-art-footer" aria-hidden="true"><span>✧</span> EST. IN THE CONSTELLATION</p>
-      <div class="auth-art-pager" aria-hidden="true">
-        <span>01 / 07</span>
-        <i />
-      </div>
     </aside>
 
     <main class="auth-main">

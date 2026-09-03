@@ -39,23 +39,23 @@ const requireBookingLogin = async () => {
   return false
 }
 const addToBookingCart = async () => {
-  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择预约开始时间'; return }
+  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择点单开始时间'; return }
   if (!(await requireBookingLogin())) return
   bookingWorking.value = true; bookingError.value = ''; bookingFeedback.value = ''
   try {
     await bookingApi.addBookingCartLine(companionId.value, new Date(bookingStart.value).toISOString(), bookingDurationHours.value)
-    bookingFeedback.value = locale.value === 'zh' ? '已加入预约购物车' : 'Added to booking cart'
-  } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '加入预约购物车失败' }
+    bookingFeedback.value = locale.value === 'zh' ? '已加入点单车' : 'Added to order cart'
+  } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '加入点单车失败' }
   finally { bookingWorking.value = false }
 }
 const bookNow = async () => {
-  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择预约开始时间'; return }
+  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择点单开始时间'; return }
   if (!(await requireBookingLogin())) return
   bookingWorking.value = true; bookingError.value = ''
   try {
     const bookingId = await bookingApi.createBooking(companionId.value, new Date(bookingStart.value).toISOString(), bookingDurationHours.value)
     await navigateTo(`/bookings/${bookingId}`)
-  } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '创建预约失败'; bookingWorking.value = false }
+  } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '创建点单失败'; bookingWorking.value = false }
 }
 const showcaseVideos = ref<{ name: string; size: string; url: string }[]>([])
 const showcaseAudios = ref<{ name: string; url: string }[]>([])
@@ -130,8 +130,8 @@ onBeforeUnmount(() => { if (galleryTimer) clearInterval(galleryTimer); window.re
         <p v-if="bookingError" class="commerce-alert" role="alert">{{ bookingError }}</p>
         <p v-if="bookingFeedback" class="booking-feedback">{{ bookingFeedback }}</p>
         <div class="booking-widget-actions">
-          <button class="button" type="button" :disabled="bookingWorking" @click="addToBookingCart">加入预约车</button>
-          <button class="button button-primary public-profile-cta" type="button" :disabled="bookingWorking" @click="bookNow">{{ bookingWorking ? '处理中…' : '立即预约' }} <span>→</span></button>
+          <button class="button" type="button" :disabled="bookingWorking" @click="addToBookingCart">加入点单车</button>
+          <button class="button button-primary public-profile-cta" type="button" :disabled="bookingWorking" @click="bookNow">{{ bookingWorking ? '处理中…' : '立即点单' }} <span>→</span></button>
         </div>
       </div></div></article></div><div class="public-card-secondary"><div v-if="gallery.length" class="public-card-gallery"><button type="button" class="public-gallery-expand" :aria-label="t('public.photoAlt', { name: person.name, count: activePhoto + 1 })" @click="openImage"><img :src="gallery[activePhoto]?.dataUrl" :alt="t('public.photoAlt', { name: person.name, count: activePhoto + 1 })"><span>⛶</span></button><template v-if="gallery.length > 1"><button class="previous" type="button" :aria-label="t('public.previousPhoto')" @click="stepPhoto(-1)">←</button><button class="next" type="button" :aria-label="t('public.nextPhoto')" @click="stepPhoto(1)">→</button><div class="public-gallery-dots"><button v-for="(_, index) in gallery" :key="index" type="button" :class="{ active: index === activePhoto }" @click="activePhoto = index" /></div></template></div><section v-if="showcaseVideos.length" class="public-inline-videos"><p class="eyebrow"><span />{{ t('public.highlights') }}</p><div class="public-video-grid"><button v-for="(video, index) in showcaseVideos" :key="`video-${index}`" type="button" class="public-video-tile" @click="openVideo(video)"><video :src="video.url" preload="metadata" muted playsinline /><span class="public-video-play">▶</span><div><small>{{ t('public.highlight') }} {{ String(index + 1).padStart(2, '0') }}</small><strong>{{ video.name }}</strong></div></button></div></section></div></section>
     </template>

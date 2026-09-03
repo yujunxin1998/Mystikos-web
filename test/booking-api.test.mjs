@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createBookingApi, requireBookingLogin } from '../app/utils/booking-api.mjs'
 
-test('预约客户端按 OpenAPI 契约发送单条预约、预约购物车和预约组请求', async () => {
+test('点单客户端按 OpenAPI 契约发送单条点单、点单车和点单组请求', async () => {
   const calls = []
   const request = async (path, options = {}) => {
     calls.push({ path, options })
@@ -41,15 +41,15 @@ test('预约客户端按 OpenAPI 契约发送单条预约、预约购物车和�
   ])
 })
 
-test('预约客户端在发请求前拒绝无效 ID 和空的结算选择', async () => {
+test('点单客户端在发请求前拒绝无效 ID 和空的结算选择', async () => {
   const api = createBookingApi(async () => assert.fail('invalid input must not make a request'))
 
   await assert.rejects(() => api.getBooking(0), /ID/)
-  await assert.rejects(() => api.checkoutBookingCart([]), /预约/)
+  await assert.rejects(() => api.checkoutBookingCart([]), /点单/)
   await assert.rejects(() => api.removeBookingCartLine(-1), /ID/)
 })
 
-test('雪花预约/组ID在各路径中保持原始精度', async () => {
+test('雪花点单/组ID在各路径中保持原始精度', async () => {
   const paths = []
   const api = createBookingApi(async path => { paths.push(path) })
   const bookingId = '2092533063002484700'
@@ -68,7 +68,7 @@ test('雪花预约/组ID在各路径中保持原始精度', async () => {
   ])
 })
 
-test('未登录预约操作跳转登录并停止后续请求', async () => {
+test('未登录点单操作跳转登录并停止后续请求', async () => {
   let destination = ''
   const allowed = await requireBookingLogin(false, async path => { destination = path })
 

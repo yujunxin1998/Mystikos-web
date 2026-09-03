@@ -21,7 +21,7 @@ const loadCart = async () => {
   try {
     lines.value = await api.listBookingCart() || []
     selectedIds.value = new Set(lines.value.map(line => String(line.id)))
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '预约购物车加载失败' }
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '点单车加载失败' }
   finally { loading.value = false }
 }
 
@@ -36,7 +36,7 @@ const toggleSelectAll = () => { selectedIds.value = allSelected.value ? new Set(
 const removeLine = async (id: string) => {
   actionId.value = id
   try { await api.removeBookingCartLine(id); await loadCart() }
-  catch (cause) { error.value = cause instanceof Error ? cause.message : '移出预约购物车失败' }
+  catch (cause) { error.value = cause instanceof Error ? cause.message : '移出点单车失败' }
   finally { actionId.value = null }
 }
 
@@ -47,7 +47,7 @@ const checkout = async () => {
   try {
     const groupId = await api.checkoutBookingCart(selectedLines.value.map(line => line.id))
     await navigateTo(`/bookings/groups/${groupId}`)
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '结算预约购物车失败' }
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '结算点单车失败' }
   finally { checkoutLoading.value = false }
 }
 
@@ -60,17 +60,17 @@ onMounted(async () => {
 <template>
   <section class="commerce-order-page section-wrap">
     <NuxtLink to="/companions" class="commerce-back">← 返回陪玩列表</NuxtLink>
-    <header><div><p class="eyebrow"><span />BOOKING CART</p><h1>预约购物车</h1></div></header>
+    <header><div><p class="eyebrow"><span />BOOKING CART</p><h1>点单车</h1></div></header>
     <p v-if="error" class="commerce-alert" role="alert">{{ error }}</p>
-    <p v-if="loading" class="empty-state">正在加载预约购物车…</p>
-    <p v-else-if="!lines.length" class="empty-state">预约购物车还是空的，去陪玩详情页加一些吧。</p>
+    <p v-if="loading" class="empty-state">正在加载点单车…</p>
+    <p v-else-if="!lines.length" class="empty-state">点单车还是空的，去陪玩详情页加一些吧。</p>
     <template v-else>
       <label class="cart-select-all"><input type="checkbox" :checked="allSelected" @change="toggleSelectAll"> 全选</label>
       <section class="order-card">
         <article v-for="line in lines" :key="String(line.id)">
           <label class="cart-line-checkbox"><input type="checkbox" :checked="selectedIds.has(String(line.id))" @change="toggleLine(String(line.id))"></label>
           <div>
-            <h2>陪玩 #{{ line.companionId }}{{ !line.companionBookable ? '（当前不可预约）' : '' }}</h2>
+            <h2>陪玩 #{{ line.companionId }}{{ !line.companionBookable ? '（当前不可点单）' : '' }}</h2>
             <p>{{ new Date(line.start).toLocaleString() }} → {{ new Date(line.end).toLocaleString() }} · {{ line.durationHours }} 小时</p>
           </div>
           <strong>{{ money(line.estimatedPrice) }}</strong>

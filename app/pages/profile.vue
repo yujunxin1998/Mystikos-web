@@ -103,8 +103,22 @@ const handleContactState = (state: AccountCompletion) => {
 
 const scrollToContactVerification = async () => {
   eligibilityDialogOpen.value = false
+  await setTab('security')
   await nextTick()
   document.getElementById('contact-verification')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+type ProfileTab = 'profile' | 'security' | 'orders' | 'wallet'
+const tabIds: ProfileTab[] = ['profile', 'security', 'orders', 'wallet']
+const activeTab = computed<ProfileTab>(() => {
+  const value = String(route.query.tab || 'profile')
+  return tabIds.includes(value as ProfileTab) ? value as ProfileTab : 'profile'
+})
+const setTab = async (tab: ProfileTab) => {
+  const query = { ...route.query }
+  if (tab === 'profile') delete query.tab
+  else query.tab = tab
+  await navigateTo({ path: '/profile', query, hash: tab === 'security' ? '#contact-verification' : '' }, { replace: true })
 }
 
 const handleCompanionAction = async () => {
@@ -137,24 +151,34 @@ onMounted(async () => {
 })
 
 const walletAction = (action: 'topup' | 'withdraw') => { notice.value = t(action === 'topup' ? 'profile.topupNotice' : 'profile.withdrawNotice') }
-const games = [{ name: 'League of Legends', short: 'LOL', hours: '42.5h', rank: 'Emerald II', color: '#c9a566' }, { name: 'VALORANT', short: 'VAL', hours: '26h', rank: 'Platinum I', color: '#d88f9d' }, { name: 'Counter-Strike 2', short: 'CS2', hours: '18.5h', rank: 'Gold Nova', color: '#80b3c4' }]
-const achievements = [{ icon: '✦', title: 'First constellation', note: 'Your first session together', unlocked: true }, { icon: '♢', title: 'Kindred signal', note: 'Affinity level 3 reached', unlocked: true }, { icon: '✧', title: 'Gifted light', note: 'Sent 12 keepsakes', unlocked: true }, { icon: '☾', title: 'Night archive', note: 'Complete 10 sessions', unlocked: false }]
 const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legends', person: 'Mika Sol', role: 'Companion', duration: '2h 30m', amount: '$40.00', status: 'Complete' }, { id: '#MK-23991', date: 'Aug 14, 2026', game: 'Counter-Strike 2', person: 'Noah Ryn', role: 'Companion', duration: '1h 45m', amount: '$35.00', status: 'Complete' }, { id: '#MK-23876', date: 'Aug 08, 2026', game: 'VALORANT', person: 'Ari Vale', role: 'Boss', duration: '3h 00m', amount: '$54.00', status: 'Complete' }]
 </script>
 
 <template>
   <div v-if="authenticated" class="profile-page section-wrap">
-    <section class="profile-overview" aria-labelledby="profile-title">
+    <header class="profile-page-head">
+      <div>
+        <p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p>
+        <h1 id="profile-title">{{ t('profile.title') }}</h1>
+      </div>
+      <nav class="profile-tabs" aria-label="Profile sections">
+        <button type="button" :class="{ active: activeTab === 'profile' }" @click="setTab('profile')">{{ t('profile.tabProfile') }}</button>
+        <button type="button" :class="{ active: activeTab === 'security' }" @click="setTab('security')">{{ t('profile.tabSecurity') }}</button>
+        <button type="button" :class="{ active: activeTab === 'orders' }" @click="setTab('orders')">{{ t('profile.tabOrders') }}</button>
+        <button type="button" :class="{ active: activeTab === 'wallet' }" @click="setTab('wallet')">{{ t('profile.tabWallet') }}</button>
+      </nav>
+    </header>
+
+    <section v-show="activeTab === 'profile'" class="profile-overview" aria-labelledby="profile-title">
       <div v-if="loading" class="profile-loading">{{ t('profile.loading') }}</div>
       <template v-else-if="profile">
         <div class="profile-overview-head">
           <div class="profile-overview-identity">
             <div class="profile-avatar" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="profile.avatarUrl || ''" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div>
-            <div><p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p><h1 id="profile-title">{{ t('profile.greeting') }} {{ profile.nickname || userName || 'Stargazer' }}</h1><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
+            <div><p class="eyebrow"><span />{{ t('profile.identity') }}</p><h2>{{ t('profile.greeting') }} {{ profile.nickname || userName || 'Stargazer' }}</h2><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
           </div>
           <div class="profile-overview-actions">
             <button v-if="!editing" class="button button-ghost profile-edit-button" @click="startEditing">{{ t('profile.edit') }} <span>↗</span></button>
-            <div class="profile-level"><span>{{ t('profile.membership') }}</span><strong>LV. 03</strong><small>6,840 / 10,000 glow</small></div>
           </div>
         </div>
         <form v-if="editing" class="profile-editor" @submit.prevent="saveProfile">
@@ -176,39 +200,53 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
         </form>
         <div v-else class="profile-overview-details">
           <div class="profile-tags"><span v-for="tag in profile.tags" :key="tag.id">{{ tag.label }}</span><span v-if="!profile.tags.length">{{ t('profile.noTags') }}</span></div>
-          <dl><div><dt>{{ t('profile.account') }}</dt><dd>{{ accountDisplay }}</dd></div><div><dt>{{ t('profile.region') }}</dt><dd>{{ regionName }}</dd></div><div><dt>{{ t('profile.birthDate') }}</dt><dd>{{ profile.birthDate || t('profile.notSet') }}</dd></div><div><dt>{{ t('profile.rankingPrivacy') }}</dt><dd>{{ profile.privacyAnonymous ? t('profile.anonymousOn') : t('profile.anonymousOff') }}</dd></div></dl>
-        </div>
-        <div id="contact-verification" class="profile-overview-contact" aria-labelledby="contact-verification-title">
-          <div class="profile-section-heading contact-section-heading">
-            <div><p class="eyebrow"><span />{{ companionCopy.contactEyebrow }}</p><h2 id="contact-verification-title">{{ companionCopy.contactTitle }}</h2><p>{{ companionCopy.contactBody }}</p></div>
-            <span class="contact-readiness" :class="{ ready: contactCompletion?.companionApplicationAllowed }"><i>{{ contactCompletion?.companionApplicationAllowed ? '✓' : '!' }}</i>{{ contactCompletion?.companionApplicationAllowed ? companionCopy.contactReady : companionCopy.contactPending }}</span>
-          </div>
-          <ContactVerificationPanel @state="handleContactState" />
+          <dl><div><dt>{{ t('profile.account') }}</dt><dd :title="accountDisplay">{{ accountDisplay }}</dd></div><div><dt>{{ t('profile.region') }}</dt><dd>{{ regionName }}</dd></div><div><dt>{{ t('profile.birthDate') }}</dt><dd>{{ profile.birthDate || t('profile.notSet') }}</dd></div><div><dt>{{ t('profile.rankingPrivacy') }}</dt><dd>{{ profile.privacyAnonymous ? t('profile.anonymousOn') : t('profile.anonymousOff') }}</dd></div></dl>
         </div>
       </template>
       <p v-if="feedback" class="profile-feedback success" role="status">{{ feedback }}</p><p v-if="error" class="profile-feedback error" role="alert">{{ error }}</p>
-    </section>
 
-    <section v-if="!isCompanion" class="profile-section companion-identity-card">
-      <div class="companion-identity-copy">
-        <p class="eyebrow"><span />{{ companionCopy.eyebrow }}</p>
-        <h2>{{ companionCopy.title }}</h2>
-        <p>{{ companionCopy.body }}</p>
-        <div class="companion-identity-actions">
-          <button type="button" class="button button-primary" :disabled="checkingCompanionEligibility" @click="handleCompanionAction">{{ companionApplication ? companionCopy.view : checkingCompanionEligibility ? companionCopy.checking : companionCopy.apply }} <span>→</span></button>
-          <button type="button" class="button button-ghost" @click="scrollToContactVerification">{{ companionCopy.security }}</button>
+      <section v-if="!loading && !isCompanion" class="profile-section companion-identity-card">
+        <div class="companion-identity-copy">
+          <p class="eyebrow"><span />{{ companionCopy.eyebrow }}</p>
+          <h2>{{ companionCopy.title }}</h2>
+          <p>{{ companionCopy.body }}</p>
+          <div class="companion-identity-actions">
+            <button type="button" class="button button-primary" :disabled="checkingCompanionEligibility" @click="handleCompanionAction">{{ companionApplication ? companionCopy.view : checkingCompanionEligibility ? companionCopy.checking : companionCopy.apply }} <span>→</span></button>
+            <button type="button" class="button button-ghost" @click="scrollToContactVerification">{{ companionCopy.security }}</button>
+          </div>
+          <p v-if="companionEligibilityError" class="companion-feedback error" role="alert">{{ companionEligibilityError }}</p>
         </div>
-        <p v-if="companionEligibilityError" class="companion-feedback error" role="alert">{{ companionEligibilityError }}</p>
-      </div>
-      <div class="companion-identity-orbit" :class="companionApplication?.status.toLowerCase() || 'member'" aria-hidden="true">
-        <i /><span>{{ companionApplication ? companionStatus : 'MEMBER' }}</span><small>{{ companionApplication?.id || 'COMPANION PATH' }}</small>
+        <div class="companion-identity-orbit" :class="companionApplication?.status.toLowerCase() || 'member'" aria-hidden="true">
+          <i /><span>{{ companionApplication ? companionStatus : 'MEMBER' }}</span><small>{{ companionApplication?.id || 'COMPANION PATH' }}</small>
+        </div>
+      </section>
+    </section>
+
+    <section v-show="activeTab === 'security'" class="profile-tab-panel" aria-labelledby="contact-verification-title">
+      <div id="contact-verification" class="profile-overview-contact">
+        <div class="profile-section-heading contact-section-heading">
+          <div><p class="eyebrow"><span />{{ companionCopy.contactEyebrow }}</p><h2 id="contact-verification-title">{{ companionCopy.contactTitle }}</h2><p>{{ companionCopy.contactBody }}</p></div>
+          <span class="contact-readiness" :class="{ ready: contactCompletion?.companionApplicationAllowed }"><i>{{ contactCompletion?.companionApplicationAllowed ? '✓' : '!' }}</i>{{ contactCompletion?.companionApplicationAllowed ? companionCopy.contactReady : companionCopy.contactPending }}</span>
+        </div>
+        <ContactVerificationPanel @state="handleContactState" />
       </div>
     </section>
 
-    <section class="profile-section"><div class="profile-section-heading"><div><p class="eyebrow"><span />{{ t('profile.gamesEyebrow') }}</p><h2>{{ t('profile.games') }}</h2></div><span>{{ t('profile.totalTime') }} <b>87h</b></span></div><div class="game-grid"><article v-for="game in games" :key="game.name" class="game-card" :style="{ '--game-accent': game.color }"><span class="game-short">{{ game.short }}</span><div><h3>{{ game.name }}</h3><p>{{ game.rank }}</p></div><strong>{{ game.hours }}</strong></article></div></section>
-    <section class="profile-section wallet-section"><div class="wallet-card"><div><p class="eyebrow"><span />{{ t('profile.walletEyebrow') }}</p><h2>{{ t('profile.wallet') }}</h2><small>{{ t('profile.available') }}</small><strong class="wallet-balance">$128.50</strong></div><div class="wallet-actions"><button class="button button-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span>→</span></button><button class="button button-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span>→</span></button></div></div><p v-if="notice" class="wallet-notice" role="status">{{ notice }}</p></section>
-    <section class="profile-section achievement-layout"><div><p class="eyebrow"><span />{{ t('profile.achievementsEyebrow') }}</p><h2>{{ t('profile.achievements') }}</h2><p class="profile-muted">{{ t('profile.achievementsBody') }}</p><div class="intimacy-meter"><div><span>{{ t('profile.intimacy') }}</span><strong>1,680 / 2,000</strong></div><i><b /></i><small>{{ t('profile.intimacyNext') }}</small></div></div><div class="achievement-grid"><article v-for="item in achievements" :key="item.title" class="profile-achievement" :class="{ locked: !item.unlocked }"><span>{{ item.icon }}</span><div><strong>{{ item.title }}</strong><small>{{ item.note }}</small></div></article></div></section>
-    <section class="profile-section orders-section"><div class="profile-section-heading"><div><p class="eyebrow"><span />{{ t('profile.ordersEyebrow') }}</p><h2>{{ t('profile.orders') }}</h2></div><span>{{ t('profile.ordersHint') }}</span></div><div class="orders-table"><div class="order-row order-head"><span>{{ t('profile.order') }}</span><span>{{ t('profile.session') }}</span><span>{{ t('profile.duration') }}</span><span>{{ t('profile.total') }}</span><span>{{ t('profile.status') }}</span></div><article v-for="order in orders" :key="order.id" class="order-row"><div><strong>{{ order.id }}</strong><small>{{ order.date }}</small></div><div><strong>{{ order.game }}</strong><small>{{ order.role }} · {{ order.person }}</small></div><span>{{ order.duration }}</span><strong>{{ order.amount }}</strong><em>{{ order.status }}</em></article></div></section>
+    <section v-show="activeTab === 'orders'" class="profile-tab-panel profile-section orders-section">
+      <div class="profile-section-heading">
+        <div><p class="eyebrow"><span />{{ t('profile.ordersEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p><h2>{{ t('profile.orders') }}</h2></div>
+        <span>{{ t('profile.ordersHint') }}</span>
+      </div>
+      <p class="preview-note">{{ t('profile.demoNote') }}</p>
+      <div class="orders-table"><div class="order-row order-head"><span>{{ t('profile.order') }}</span><span>{{ t('profile.session') }}</span><span>{{ t('profile.duration') }}</span><span>{{ t('profile.total') }}</span><span>{{ t('profile.status') }}</span></div><article v-for="order in orders" :key="order.id" class="order-row"><div><strong>{{ order.id }}</strong><small>{{ order.date }}</small></div><div><strong>{{ order.game }}</strong><small>{{ order.role }} · {{ order.person }}</small></div><span>{{ order.duration }}</span><strong>{{ order.amount }}</strong><em>{{ order.status }}</em></article></div>
+    </section>
+
+    <section v-show="activeTab === 'wallet'" class="profile-tab-panel profile-section wallet-section">
+      <p class="eyebrow"><span />{{ t('profile.walletEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p>
+      <p class="preview-note">{{ t('profile.demoNote') }}</p>
+      <div class="wallet-card"><div><h2>{{ t('profile.wallet') }}</h2><small>{{ t('profile.available') }}</small><strong class="wallet-balance">$128.50</strong></div><div class="wallet-actions"><button class="button button-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span>→</span></button><button class="button button-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span>→</span></button></div></div>
+      <p v-if="notice" class="wallet-notice" role="status">{{ notice }}</p>
+    </section>
 
     <div v-if="eligibilityDialogOpen" class="eligibility-dialog-backdrop" role="presentation" @click.self="eligibilityDialogOpen = false" @keydown.esc="eligibilityDialogOpen = false">
       <section class="eligibility-dialog" role="dialog" aria-modal="true" aria-labelledby="eligibility-dialog-title">

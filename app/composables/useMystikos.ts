@@ -24,15 +24,15 @@ type Product = {
 const copy: Record<Locale, Record<string, string>> = {
   en: {
     'profile.regionSearch': 'Search country or region…', 'profile.regionEmpty': 'No matching place found.', 'profile.regionToggle': 'Expand or collapse region',
-    'nav.home': 'Home', 'nav.shop': 'Curio shop', 'nav.membership': 'Membership', 'nav.language': '中文',
-    'nav.theme': 'Change colour theme', 'nav.menu': 'Open navigation', 'nav.close': 'Close navigation',
+    'nav.home': 'Home', 'nav.shop': 'Shop', 'nav.membership': 'Membership', 'nav.language': '中文',
+    'nav.theme': 'Colour theme', 'nav.menu': 'Open navigation', 'nav.close': 'Close navigation',
     'hero.eyebrow': 'A GUILD FOR THE GAMES YOU REMEMBER', 'hero.title': 'Find the company that makes every match matter.',
     'hero.body': 'Mystikos brings together skilled companions, thoughtful rituals and objects worth keeping.',
-    'hero.primary': 'Meet the guild', 'hero.secondary': 'Explore the shop', 'hero.cardTitle': 'Tonight’s constellation',
+    'hero.primary': 'Find companions', 'hero.secondary': 'Browse the shop', 'hero.cardTitle': 'Tonight’s constellation',
     'hero.cardText': 'Three companions are ready to make a little more room for wonder.', 'hero.online': 'online now',
     'social.label': 'A quieter kind of guild', 'social.value': '12,400+ shared nights',
     'companions.eyebrow': 'HANDPICKED COMPANIONS', 'companions.title': 'Good games deserve good company.',
-    'companions.all': 'View all companions', 'companions.book': 'Reserve a session',
+    'companions.all': 'View all companions', 'companions.book': 'Order',
     'ranking.eyebrow': 'THIS WEEK IN THE GUILD', 'ranking.title': 'The people who keep the constellation bright.',
     'ranking.companions': 'Companion ranking', 'ranking.bosses': 'Guardian ranking', 'ranking.score': 'glow points',
     'ranking.guardianScore': 'guardian points', 'ranking.change': 'vs. last week', 'ranking.private': 'Private by design',
@@ -76,15 +76,15 @@ const copy: Record<Locale, Record<string, string>> = {
   },
   zh: {
     'profile.regionSearch': '搜索国家或地区…', 'profile.regionEmpty': '没有找到匹配的地区', 'profile.regionToggle': '展开或收起地区',
-    'nav.home': '首页', 'nav.shop': '奇物商店', 'nav.membership': '会员体系', 'nav.language': 'EN',
-    'nav.theme': '切换色彩主题', 'nav.menu': '打开导航', 'nav.close': '关闭导航',
+    'nav.home': '首页', 'nav.shop': '商城', 'nav.membership': '会员体系', 'nav.language': 'EN',
+    'nav.theme': '色彩主题', 'nav.menu': '打开导航', 'nav.close': '关闭导航',
     'hero.eyebrow': '为值得铭记的游戏而设的公会', 'hero.title': '找到让每一次对局都更有意义的陪伴',
     'hero.body': 'Mystikos 汇聚专业陪玩、温柔仪式感，以及值得珍藏的品牌小物。',
-    'hero.primary': '认识公会伙伴', 'hero.secondary': '探索商店', 'hero.cardTitle': '今夜星群',
+    'hero.primary': '去找陪玩', 'hero.secondary': '逛奇物商城', 'hero.cardTitle': '今夜星群',
     'hero.cardText': '三位陪玩已就位，准备与你分享一点不一样的游戏时光。', 'hero.online': '正在在线',
     'social.label': '一种更安静的公会氛围', 'social.value': '12,400+ 个共度夜晚',
     'companions.eyebrow': '精选陪玩', 'companions.title': '好游戏值得好陪伴',
-    'companions.all': '查看全部陪玩', 'companions.book': '预约一局',
+    'companions.all': '查看全部陪玩', 'companions.book': '点单',
     'ranking.eyebrow': '本周公会', 'ranking.title': '让星群持续闪耀的人',
     'ranking.companions': '陪玩榜', 'ranking.bosses': '守护榜', 'ranking.score': '魅力值',
     'ranking.guardianScore': '守护值', 'ranking.change': '较上周', 'ranking.private': '隐私优先',
@@ -129,13 +129,29 @@ const copy: Record<Locale, Record<string, string>> = {
 }
 
 Object.assign(copy.en, {
-  'nav.companions': 'Companions', 'nav.profileHome': 'Profile home', 'nav.profileHomeHint': 'Account, profile and security', 'nav.companionCard': 'Companion card', 'nav.companionCardHint': 'Edit your public card',
-  'directory.eyebrow': 'COMPANION DIRECTORY · PUBLIC CARDS', 'directory.title': 'Who will you queue with tonight?', 'directory.open': 'Open to every Mystikos member', 'directory.intro': 'Explore games, play styles and availability. Choose a card to open the full public profile.', 'directory.search': 'Search name, game or play style', 'directory.filterLabel': 'Companion filters', 'directory.all': 'All', 'directory.heading': 'Guild companions', 'directory.count': '{count} companions', 'directory.verified': 'Verified companion', 'directory.sessions': '{count} sessions', 'directory.save': 'Save {name}', 'directory.unsave': 'Remove {name} from saved', 'directory.empty': 'No matching companions', 'directory.emptyHint': 'Try another name, game, or play style.', 'directory.loading': 'Loading companions…', 'directory.loadError': 'Could not load companions', 'directory.retry': 'Try again', 'directory.available': 'Available', 'directory.noTagline': 'Open the card to learn more', 'directory.viewCard': 'View card', 'directory.pagination': 'Companion pages', 'directory.previous': 'Previous', 'directory.next': 'Next', 'directory.page': 'Page {page} of {pages}',
+  'nav.companions': 'Companions', 'nav.mine': 'Mine', 'nav.bookingCart': 'Order cart', 'nav.wishlist': 'Wishlist', 'nav.wishlistEyebrow': 'WISHLIST',
+  'nav.wishlistCount': '{count} saved', 'nav.wishlistLoading': 'Loading wishlist…', 'nav.wishlistEmpty': 'No saved items yet.', 'nav.wishlistAdded': 'Saved on {date}', 'nav.wishlistToCart': 'Add to cart', 'nav.wishlistContinue': 'Continue shopping',
+  'nav.themeHint': 'Switch light or dark', 'nav.languageHint': 'Switch interface language', 'nav.logoutHint': 'End session on this device',
+  'nav.profileHome': 'Profile home', 'nav.profileHomeHint': 'Account, profile and security', 'nav.companionCard': 'Companion card', 'nav.companionCardHint': 'Edit your public card',
+  'preview.badge': 'Preview', 'preview.note': 'Demo data — not connected to live APIs yet.',
+  'membership.perk1': 'Priority sessions', 'membership.perk2': 'Birthday keepsake', 'membership.perk3': 'Guild invitations',
+  'profile.tabProfile': 'Profile', 'profile.tabSecurity': 'Security', 'profile.tabOrders': 'Orders', 'profile.tabWallet': 'Wallet',
+  'profile.demoBadge': 'Sample', 'profile.demoNote': 'Coming soon — these figures are illustrative until the API ships.',
+  'profile.accountSecurity': 'Account security', 'profile.accountSecurityHint': 'Password and login protections',
+  'directory.eyebrow': 'COMPANION DIRECTORY · PUBLIC CARDS', 'directory.title': 'Who will you queue with tonight?', 'directory.open': 'Open to every Mystikos member', 'directory.intro': 'Explore games, play styles and availability. Choose a card to open the full public profile.', 'directory.search': 'Search name, game or play style', 'directory.filterLabel': 'Companion filters', 'directory.all': 'All', 'directory.heading': 'Guild companions', 'directory.count': '{count} companions', 'directory.verified': 'Verified companion', 'directory.sessions': '{count} sessions', 'directory.save': 'Save {name}', 'directory.unsave': 'Remove {name} from saved', 'directory.empty': 'No matching companions', 'directory.emptyHint': 'Try another name, game, or play style.', 'directory.loading': 'Loading companions…', 'directory.loadingHint': 'Gathering tonight’s constellation.', 'directory.loadError': 'Could not load companions', 'directory.retryHint': 'Check your connection, then try again.', 'directory.retry': 'Reload', 'directory.available': 'Available', 'directory.noTagline': 'Open the card to learn more', 'directory.viewCard': 'View card', 'directory.pagination': 'Companion pages', 'directory.previous': 'Previous', 'directory.next': 'Next', 'directory.page': 'Page {page} of {pages}',
   'public.back': 'Back to companions', 'public.verified': 'Verified companion', 'public.rating': 'Member rating', 'public.sessions': 'Sessions together', 'public.response': 'Response rate', 'public.invite': 'Invite this companion', 'public.invited': 'Invitation sent · awaiting response', 'public.highlights': 'HIGHLIGHTS', 'public.highlightsTitle': 'See how we play together.', 'public.highlight': 'Highlight', 'public.defaultHighlight': 'A calm comeback in the final round', 'public.voice': 'Voice note', 'public.voiceTitle': 'Hear my voice', 'public.previousPhoto': 'Previous photo', 'public.nextPhoto': 'Next photo', 'public.viewPhoto': 'View photo {count}', 'public.photoAlt': '{name} photo {count}'
 })
 Object.assign(copy.zh, {
-  'nav.companions': '陪玩清单', 'nav.profileHome': '个人资料主页', 'nav.profileHomeHint': '账号、资料与安全', 'nav.companionCard': '陪玩名片', 'nav.companionCardHint': '编辑公开在线卡片',
-  'directory.eyebrow': '陪玩清单 · 公开名片', 'directory.title': '今晚想和谁并肩', 'directory.open': '向所有 Mystikos 会员开放', 'directory.intro': '查看陪玩的擅长游戏、陪伴风格与当前状态。选择一张名片，进入完整公开主页。', 'directory.search': '搜索名称、游戏或陪伴风格', 'directory.filterLabel': '陪玩筛选', 'directory.all': '全部', 'directory.heading': '公会陪玩', 'directory.count': '共 {count} 位陪玩', 'directory.verified': '已认证陪玩', 'directory.sessions': '{count} 次同行', 'directory.save': '收藏 {name}', 'directory.unsave': '取消收藏 {name}', 'directory.empty': '没有找到匹配的陪玩', 'directory.emptyHint': '试试其他名称、游戏或陪伴风格。', 'directory.loading': '正在加载陪玩…', 'directory.loadError': '陪玩列表加载失败', 'directory.retry': '重新加载', 'directory.available': '当前可约', 'directory.noTagline': '进入名片了解更多', 'directory.viewCard': '查看名片', 'directory.pagination': '陪玩列表分页', 'directory.previous': '上一页', 'directory.next': '下一页', 'directory.page': '第 {page} / {pages} 页',
+  'nav.companions': '陪玩', 'nav.mine': '我的', 'nav.bookingCart': '点单车', 'nav.wishlist': '心愿单', 'nav.wishlistEyebrow': '心愿单',
+  'nav.wishlistCount': '{count} 件收藏', 'nav.wishlistLoading': '正在读取心愿单…', 'nav.wishlistEmpty': '还没有收藏商品。', 'nav.wishlistAdded': '收藏于 {date}', 'nav.wishlistToCart': '加入购物车', 'nav.wishlistContinue': '继续逛商城',
+  'nav.themeHint': '切换明暗主题', 'nav.languageHint': '切换界面语言', 'nav.logoutHint': '结束本机登录状态',
+  'nav.profileHome': '个人资料主页', 'nav.profileHomeHint': '账号、资料与安全', 'nav.companionCard': '陪玩名片', 'nav.companionCardHint': '编辑公开在线卡片',
+  'preview.badge': '预览', 'preview.note': '演示数据，尚未接入真实接口。',
+  'membership.perk1': '优先点单', 'membership.perk2': '生日纪念物', 'membership.perk3': '公会邀请',
+  'profile.tabProfile': '资料', 'profile.tabSecurity': '安全', 'profile.tabOrders': '订单', 'profile.tabWallet': '钱包',
+  'profile.demoBadge': '示例', 'profile.demoNote': '即将上线 — 当前为展示数据，不代表真实余额或订单。',
+  'profile.accountSecurity': '账号安全', 'profile.accountSecurityHint': '密码与登录保护',
+  'directory.eyebrow': '陪玩清单 · 公开名片', 'directory.title': '今晚想和谁并肩', 'directory.open': '向所有 Mystikos 会员开放', 'directory.intro': '查看陪玩的擅长游戏、陪伴风格与当前状态。选择一张名片，进入完整公开主页。', 'directory.search': '搜索名称、游戏或陪伴风格', 'directory.filterLabel': '陪玩筛选', 'directory.all': '全部', 'directory.heading': '公会陪玩', 'directory.count': '共 {count} 位陪玩', 'directory.verified': '已认证陪玩', 'directory.sessions': '{count} 次同行', 'directory.save': '收藏 {name}', 'directory.unsave': '取消收藏 {name}', 'directory.empty': '没有找到匹配的陪玩', 'directory.emptyHint': '试试其他名称、游戏或陪伴风格。', 'directory.loading': '正在加载陪玩…', 'directory.loadingHint': '正在点亮今夜的星群。', 'directory.loadError': '陪玩列表暂时无法加载', 'directory.retryHint': '请检查网络后重试，星群会再回来。', 'directory.retry': '重新加载', 'directory.available': '当前可点单', 'directory.noTagline': '进入名片了解更多', 'directory.viewCard': '查看名片', 'directory.pagination': '陪玩列表分页', 'directory.previous': '上一页', 'directory.next': '下一页', 'directory.page': '第 {page} / {pages} 页',
   'public.back': '返回陪玩清单', 'public.verified': '已认证陪玩', 'public.rating': '会员评分', 'public.sessions': '共同对局', 'public.response': '回应率', 'public.invite': '向这位陪玩发起邀请', 'public.invited': '邀请已发送 · 等待回应', 'public.highlights': '精彩操作', 'public.highlightsTitle': '先看看我们的默契。', 'public.highlight': '精彩操作', 'public.defaultHighlight': '残局中的冷静反攻', 'public.voice': '语音片段', 'public.voiceTitle': '听听我的声音', 'public.previousPhoto': '上一张', 'public.nextPhoto': '下一张', 'public.viewPhoto': '查看第 {count} 张照片', 'public.photoAlt': '{name} 的照片 {count}'
 })
 

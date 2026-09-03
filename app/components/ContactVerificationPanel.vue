@@ -145,33 +145,62 @@ onMounted(refresh)
   <div class="contact-verification-panel">
     <div v-if="loading" class="companion-loading">{{ copy.loading }}</div>
     <template v-else>
-      <p class="contact-verification-rule"><span>✦</span>{{ copy.rule }}</p>
       <section class="security-grid">
-        <article class="verification-card">
-          <div class="verification-heading">
-            <span>01</span><div><h3>{{ copy.email }}</h3><p :class="{ verified: emailVerified }">{{ emailVerified ? copy.verified : copy.unverified }}</p></div>
+        <article class="verification-card" :class="{ 'is-verified': emailVerified && !editingEmail }">
+          <header class="verification-heading">
+            <span class="verification-index">01</span>
+            <h3>{{ copy.email }}</h3>
+            <em class="verification-status" :class="{ verified: emailVerified && !editingEmail }">{{ emailVerified && !editingEmail ? copy.verified : copy.unverified }}</em>
+          </header>
+          <div class="verification-body">
+            <div v-if="emailVerified && !editingEmail" class="contact-value-row">
+              <span class="contact-value">{{ completion?.email }}</span>
+              <button type="button" class="contact-action" @click="toggleEdit('EMAIL')">{{ copy.change }}</button>
+            </div>
+            <template v-else>
+              <label class="companion-field contact-input-field">
+                <span class="visually-hidden">{{ copy.email }}</span>
+                <input v-model.trim="email" type="email" autocomplete="email" :placeholder="copy.emailPlaceholder">
+              </label>
+              <div class="verification-actions">
+                <button class="text-action" type="button" :disabled="sending === 'EMAIL'" @click="sendCode('EMAIL')">{{ sending === 'EMAIL' ? copy.sending : emailSent ? copy.sent : copy.send }} →</button>
+                <button v-if="emailVerified" class="text-action muted" type="button" @click="toggleEdit('EMAIL')">{{ copy.cancel }}</button>
+              </div>
+              <div v-if="emailSent" class="verification-code-row">
+                <input v-model.trim="emailCode" inputmode="numeric" maxlength="6" :placeholder="copy.code">
+                <button type="button" :disabled="verifying === 'EMAIL'" @click="verify('EMAIL')">{{ verifying === 'EMAIL' ? copy.verifying : copy.verify }}</button>
+              </div>
+            </template>
           </div>
-          <div v-if="emailVerified && !editingEmail" class="verified-contact-value"><span>{{ completion?.email }}</span><button type="button" @click="toggleEdit('EMAIL')">{{ copy.change }}</button></div>
-          <template v-else>
-            <label class="companion-field"><span>{{ copy.email }}</span><input v-model.trim="email" type="email" autocomplete="email" :placeholder="copy.emailPlaceholder"></label>
-            <div class="verification-actions"><button class="text-action" type="button" :disabled="sending === 'EMAIL'" @click="sendCode('EMAIL')">{{ sending === 'EMAIL' ? copy.sending : emailSent ? copy.sent : copy.send }} →</button><button v-if="emailVerified" class="text-action muted" type="button" @click="toggleEdit('EMAIL')">{{ copy.cancel }}</button></div>
-            <div v-if="emailSent" class="verification-code-row"><input v-model.trim="emailCode" inputmode="numeric" maxlength="6" :placeholder="copy.code"><button type="button" :disabled="verifying === 'EMAIL'" @click="verify('EMAIL')">{{ verifying === 'EMAIL' ? copy.verifying : copy.verify }}</button></div>
-          </template>
         </article>
 
-        <article class="verification-card">
-          <div class="verification-heading">
-            <span>02</span><div><h3>{{ copy.phone }}</h3><p :class="{ verified: phoneVerified }">{{ phoneVerified ? copy.verified : copy.unverified }}</p></div>
+        <article class="verification-card" :class="{ 'is-verified': phoneVerified && !editingPhone }">
+          <header class="verification-heading">
+            <span class="verification-index">02</span>
+            <h3>{{ copy.phone }}</h3>
+            <em class="verification-status" :class="{ verified: phoneVerified && !editingPhone }">{{ phoneVerified && !editingPhone ? copy.verified : copy.unverified }}</em>
+          </header>
+          <div class="verification-body">
+            <div v-if="phoneVerified && !editingPhone" class="contact-value-row">
+              <span class="contact-value">{{ maskedVerifiedPhone }}</span>
+              <button type="button" class="contact-action" @click="toggleEdit('PHONE')">{{ copy.change }}</button>
+            </div>
+            <template v-else>
+              <InternationalPhoneField v-model="phone" v-model:country="phoneCountry" :label="copy.phone" :placeholder="copy.phonePlaceholder" hide-label />
+              <div class="verification-actions">
+                <button class="text-action" type="button" :disabled="sending === 'PHONE'" @click="sendCode('PHONE')">{{ sending === 'PHONE' ? copy.sending : phoneSent ? copy.sent : copy.send }} →</button>
+                <button v-if="phoneVerified" class="text-action muted" type="button" @click="toggleEdit('PHONE')">{{ copy.cancel }}</button>
+              </div>
+              <div v-if="phoneSent" class="verification-code-row">
+                <input v-model.trim="phoneCode" inputmode="numeric" maxlength="6" :placeholder="copy.code">
+                <button type="button" :disabled="verifying === 'PHONE'" @click="verify('PHONE')">{{ verifying === 'PHONE' ? copy.verifying : copy.verify }}</button>
+              </div>
+            </template>
           </div>
-          <div v-if="phoneVerified && !editingPhone" class="verified-contact-value"><span>{{ maskedVerifiedPhone }}</span><button type="button" @click="toggleEdit('PHONE')">{{ copy.change }}</button></div>
-          <template v-else>
-            <InternationalPhoneField v-model="phone" v-model:country="phoneCountry" :label="copy.phone" :placeholder="copy.phonePlaceholder" />
-            <div class="verification-actions"><button class="text-action" type="button" :disabled="sending === 'PHONE'" @click="sendCode('PHONE')">{{ sending === 'PHONE' ? copy.sending : phoneSent ? copy.sent : copy.send }} →</button><button v-if="phoneVerified" class="text-action muted" type="button" @click="toggleEdit('PHONE')">{{ copy.cancel }}</button></div>
-            <div v-if="phoneSent" class="verification-code-row"><input v-model.trim="phoneCode" inputmode="numeric" maxlength="6" :placeholder="copy.code"><button type="button" :disabled="verifying === 'PHONE'" @click="verify('PHONE')">{{ verifying === 'PHONE' ? copy.verifying : copy.verify }}</button></div>
-          </template>
         </article>
       </section>
 
+      <p v-if="!completion?.companionApplicationAllowed" class="contact-verification-rule"><span>✦</span>{{ copy.rule }}</p>
       <p v-if="notice" class="companion-feedback success" role="status">{{ notice }}</p>
       <p v-if="error" class="companion-feedback error" role="alert">{{ error }}</p>
       <div v-if="completion?.companionApplicationAllowed" class="security-ready"><div><span>✦</span><strong>{{ copy.ready }}</strong></div><NuxtLink v-if="props.showReadyAction" to="/companion/apply" class="button button-primary">{{ copy.apply }} →</NuxtLink></div>

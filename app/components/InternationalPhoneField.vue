@@ -6,7 +6,8 @@ const props = withDefaults(defineProps<{
   country: CountryCode
   label?: string
   placeholder?: string
-}>(), { label: 'Phone number', placeholder: 'Mobile number' })
+  hideLabel?: boolean
+}>(), { label: 'Phone number', placeholder: 'Mobile number', hideLabel: false })
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -30,13 +31,13 @@ defineExpose({
 </script>
 
 <template>
-  <label class="companion-field companion-field-wide">
-    <span>{{ label }}</span>
+  <label class="companion-field companion-field-wide" :class="{ 'is-label-hidden': hideLabel }">
+    <span v-if="!hideLabel">{{ label }}</span>
     <div class="international-phone" :class="{ invalid }">
       <select :value="country" :aria-label="locale === 'zh' ? '国家或地区' : 'Country or region'" @change="emit('update:country', ($event.target as HTMLSelectElement).value as CountryCode)">
         <option v-for="item in countries" :key="item.code" :value="item.code">{{ item.name }} +{{ item.callingCode }}</option>
       </select>
-      <input :value="modelValue" type="tel" inputmode="tel" autocomplete="tel-national" :placeholder="placeholder" @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
+      <input :value="modelValue" type="tel" inputmode="tel" autocomplete="tel-national" :placeholder="placeholder" :aria-label="hideLabel ? label : undefined" @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
     </div>
     <small v-if="invalid" class="field-error">{{ locale === 'zh' ? '请输入该国家或地区有效的手机号' : 'Enter a valid number for this country or region' }}</small>
   </label>

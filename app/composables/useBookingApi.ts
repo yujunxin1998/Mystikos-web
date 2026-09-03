@@ -43,7 +43,7 @@ export function useBookingApi() {
       ignoreResponseError: true,
       headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
     })
-    if (!response || response.code !== 200) throw new Error(response?.message || '预约请求失败')
+    if (!response || response.code !== 200) throw new Error(response?.message || '点单请求失败')
     return response.data as T
   }
 
