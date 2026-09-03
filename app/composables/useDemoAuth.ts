@@ -28,6 +28,9 @@ export function useDemoAuth() {
     userName.value = name || 'Stargazer'
     authenticated.value = true
   }
+  const invalidateSession = () => {
+    accessToken.value = null; refreshToken.value = null; authenticated.value = false; userName.value = ''; userAvatarUrl.value = ''
+  }
   const loginPassword = async (identifier: string, password: string) => {
     const body = config.public.passwordEncryptionEnabled
       ? await buildEncryptedPasswordLoginPayload(identifier, password, await request<LoginPublicKeyResponse>('auth/public-key'))
@@ -54,8 +57,8 @@ export function useDemoAuth() {
   }
   const logout = async () => {
     try { if (accessToken.value) await request('auth/logout', { method: 'POST', headers: { authorization: `Bearer ${accessToken.value}` } }) } catch { /* Local cleanup is still required. */ }
-    accessToken.value = null; refreshToken.value = null; authenticated.value = false; userName.value = ''; userAvatarUrl.value = ''
+    invalidateSession()
   }
 
-  return { authenticated, userName, userAvatarUrl, accessToken, loginPassword, loginWithCode, sendCode, register, oauthLogin, redeemOAuthTicket, logout }
+  return { authenticated, userName, userAvatarUrl, accessToken, loginPassword, loginWithCode, sendCode, register, oauthLogin, redeemOAuthTicket, logout, invalidateSession }
 }

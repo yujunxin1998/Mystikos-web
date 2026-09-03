@@ -4,20 +4,9 @@ export type OAuthBindResult = {
   displayName: string | null
 }
 
-type ApiResponse<T> = { code: number; message?: string; data: T | null }
-
 export function useOAuthBinding() {
-  const { accessToken } = useDemoAuth()
-
-  const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
-    const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
-      ...options,
-      ignoreResponseError: true,
-      headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
-    })
-    if (!response || response.code !== 200) throw new Error(response?.message || 'Third-party account request failed')
-    return response.data as T
-  }
+  const { request: authedRequest } = useAuthedApi()
+  const request = <T>(path: string, options: Record<string, unknown> = {}) => authedRequest<T>(path, options, 'Third-party account request failed')
 
   const sendVerificationCode = (provider: string) =>
     request<void>(`profile/me/oauth/${provider}/binding-verification-codes`, { method: 'POST' })

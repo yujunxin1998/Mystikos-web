@@ -26,19 +26,9 @@ export type AddressPayload = {
 }
 export type Address = AddressPayload & { id: number; isDefault: boolean }
 
-type ApiResponse<T> = { code: number; message?: string; data: T | null }
-
 export function useCommerceApi() {
-  const { accessToken } = useDemoAuth()
-  const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
-    const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
-      ...options,
-      ignoreResponseError: true,
-      headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
-    })
-    if (!response || response.code !== 200) throw new Error(response?.message || '商城请求失败')
-    return response.data as T
-  }
+  const { request: authedRequest } = useAuthedApi()
+  const request = <T>(path: string, options: Record<string, unknown> = {}) => authedRequest<T>(path, options, '商城请求失败')
 
   return createCommerceApi(request) as {
     listProducts(): Promise<ProductView[]>

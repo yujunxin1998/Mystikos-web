@@ -29,16 +29,8 @@ type ApiResponse<T> = { code: number; message?: string; data: T | null }
 
 export function useProfileApi() {
   const { accessToken } = useDemoAuth()
-
-  const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
-    const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
-      ...options,
-      ignoreResponseError: true,
-      headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
-    })
-    if (!response || response.code !== 200) throw new Error(response?.message || 'Profile request failed')
-    return response.data as T
-  }
+  const { request: authedRequest } = useAuthedApi()
+  const request = <T>(path: string, options: Record<string, unknown> = {}) => authedRequest<T>(path, options, 'Profile request failed')
 
   const avatarProxyUrl = (objectKey: string) => `/api/profile/avatar?objectKey=${encodeURIComponent(objectKey)}`
   const getProfile = async () => {

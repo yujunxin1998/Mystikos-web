@@ -47,19 +47,10 @@ export type PublicShowcaseCard = {
 }
 export type PageResult<T> = { records: T[]; total: number; pageNum: number; pageSize: number }
 type UploadResult = { objectKey: string; url: string }
-type ApiResponse<T> = { code: number; message?: string; data: T | null }
 
 export function useCompanionShowcaseApi() {
-  const { accessToken } = useDemoAuth()
-  const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
-    const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
-      ...options,
-      ignoreResponseError: true,
-      headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
-    })
-    if (!response || response.code !== 200) throw new Error(response?.message || 'Companion showcase request failed')
-    return response.data as T
-  }
+  const { request: authedRequest } = useAuthedApi()
+  const request = <T>(path: string, options: Record<string, unknown> = {}) => authedRequest<T>(path, options, 'Companion showcase request failed')
   const upload = (file: File) => {
     const body = new FormData()
     body.append('file', file)

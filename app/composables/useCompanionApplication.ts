@@ -61,8 +61,6 @@ type BackendCompanionApplication = {
   createdAt: string
 }
 
-type ApiResponse<T> = { code: number; message?: string; data: T | null }
-
 const statusFromBackend = (status: BackendApplicationStatus): CompanionApplicationStatus => {
   if (status === 'SUBMITTED') return 'PENDING'
   if (status === 'IN_ASSESSMENT') return 'ASSESSING'
@@ -96,19 +94,10 @@ const fromBackend = (source: BackendCompanionApplication): CompanionApplication 
 }
 
 export function useCompanionApplication() {
-  const { accessToken } = useDemoAuth()
   const application = useState<CompanionApplication | null>('companion-application', () => null)
   const accountCompletion = useState<AccountCompletion | null>('companion-account-completion', () => null)
-
-  const request = async <T>(path: string, options: Record<string, unknown> = {}) => {
-    const response = await $fetch<ApiResponse<T>>(`/api/auth-proxy/${path}`, {
-      ...options,
-      ignoreResponseError: true,
-      headers: { authorization: `Bearer ${accessToken.value}`, ...((options.headers as object) || {}) }
-    })
-    if (!response || response.code !== 200) throw new Error(response?.message || 'Companion application request failed')
-    return response.data as T
-  }
+  const { request: authedRequest } = useAuthedApi()
+  const request = <T>(path: string, options: Record<string, unknown> = {}) => authedRequest<T>(path, options, 'Companion application request failed')
 
   const loadMyApplication = async () => {
     const source = await request<BackendCompanionApplication | null>('companion-applications/me')
