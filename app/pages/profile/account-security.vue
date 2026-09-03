@@ -92,7 +92,7 @@ onBeforeUnmount(() => { if (cooldownTimer) clearInterval(cooldownTimer) })
       </div>
     </header>
 
-    <ContactVerificationPanel show-ready-action />
+    <ContactVerificationPanel />
 
     <section class="oauth-binding-card" aria-labelledby="discord-binding-title">
       <div class="oauth-binding-heading">

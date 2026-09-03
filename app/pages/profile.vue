@@ -2,6 +2,7 @@
 import type { Gender, RegionNode, UserProfile } from '~/composables/useProfileApi'
 import type { AccountCompletion } from '~/composables/useCompanionApplication'
 import { maskPhone } from '~/utils/privacy'
+import { normalizeProfileTab, profileRootClasses, profileTabAriaCurrent, profileTabLocation } from '~/utils/profile-tabs.mjs'
 
 const { t, locale } = useMystikos()
 const { authenticated, userName, userAvatarUrl } = useDemoAuth()
@@ -30,12 +31,12 @@ const form = reactive({ nickname: '', gender: 'UNDISCLOSED' as Gender, avatarObj
 
 const companionCopy = computed(() => locale.value === 'zh' ? {
   eyebrow: '陪玩身份', title: '把熟悉的游戏分享给更多同行者', body: '所有用户默认都是 Member。提交申请并通过线下考核后，你会额外获得 Companion 身份。', apply: '申请成为陪玩', checking: '正在校验资料…', view: '查看申请进度', security: '查看账号联系方式',
-  contactEyebrow: '账号联系方式', contactTitle: '你的联络信号', contactBody: '邮箱和手机号都在个人资料中统一维护。任选一项完成验证，就能申请成为陪玩。', contactReady: '已满足申请条件', contactPending: '还需验证一项',
+  contactEyebrow: '账号联系方式', contactTitle: '你的联络信号', contactBody: '邮箱和手机号都在个人资料中统一维护。任选一项完成验证，就能申请成为陪玩。',
   incompleteTitle: '账号信息还不完善', incompleteBody: '申请成为陪玩前，请先验证邮箱或手机号其中一项。联系方式会保存在你的个人资料中。', later: '稍后处理', complete: '去完善并验证', close: '关闭提示',
   status: { PENDING: '申请中', ASSESSING: '考核中', APPROVED: '审核通过', REJECTED: '审核未通过' }
 } : {
   eyebrow: 'Companion identity', title: 'Share the games you know with someone new.', body: 'Everyone begins as a Member. After applying and completing the offline assessment, Companion is added to your account.', apply: 'Become a companion', checking: 'Checking profile…', view: 'View application', security: 'View account contacts',
-  contactEyebrow: 'Account contacts', contactTitle: 'Your contact signals', contactBody: 'Email and mobile are maintained in your profile. Verify either one to become eligible for a companion application.', contactReady: 'Application requirement met', contactPending: 'One verification needed',
+  contactEyebrow: 'Account contacts', contactTitle: 'Your contact signals', contactBody: 'Email and mobile are maintained in your profile. Verify either one to become eligible for a companion application.',
   incompleteTitle: 'Your profile is incomplete', incompleteBody: 'Before applying, verify either your email address or mobile number. Your contact information is maintained in your profile.', later: 'Not now', complete: 'Complete and verify', close: 'Close message',
   status: { PENDING: 'Application sent', ASSESSING: 'Assessment', APPROVED: 'Approved', REJECTED: 'Not approved' }
 })
@@ -101,24 +102,15 @@ const handleContactState = (state: AccountCompletion) => {
   contactCompletion.value = state
 }
 
-const scrollToContactVerification = async () => {
+const openSecurityTab = async () => {
   eligibilityDialogOpen.value = false
   await setTab('security')
-  await nextTick()
-  document.getElementById('contact-verification')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 type ProfileTab = 'profile' | 'security' | 'orders' | 'wallet'
-const tabIds: ProfileTab[] = ['profile', 'security', 'orders', 'wallet']
-const activeTab = computed<ProfileTab>(() => {
-  const value = String(route.query.tab || 'profile')
-  return tabIds.includes(value as ProfileTab) ? value as ProfileTab : 'profile'
-})
+const activeTab = computed<ProfileTab>(() => normalizeProfileTab(route.query.tab) as ProfileTab)
 const setTab = async (tab: ProfileTab) => {
-  const query = { ...route.query }
-  if (tab === 'profile') delete query.tab
-  else query.tab = tab
-  await navigateTo({ path: '/profile', query, hash: tab === 'security' ? '#contact-verification' : '' }, { replace: true })
+  await navigateTo(profileTabLocation(tab, route.query), { replace: true })
 }
 
 const handleCompanionAction = async () => {
@@ -147,7 +139,7 @@ onMounted(async () => {
     profile.value = current; userAvatarUrl.value = current.avatarUrl || ''; userName.value = current.nickname || userName.value; tags.value = availableTags; regions.value = regionTree; syncForm()
     try { await companionApi.loadMyApplication() } catch { /* The application API is deployed separately from the profile API. */ }
   } catch (cause) { error.value = cause instanceof Error ? cause.message : t('profile.loadError') } finally { loading.value = false }
-  if (route.query.complete === 'contact' || route.hash === '#contact-verification') await scrollToContactVerification()
+  if (route.query.complete === 'contact' || route.hash === '#contact-verification') await openSecurityTab()
 })
 
 const walletAction = (action: 'topup' | 'withdraw') => { notice.value = t(action === 'topup' ? 'profile.topupNotice' : 'profile.withdrawNotice') }
@@ -155,35 +147,49 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
 </script>
 
 <template>
-  <div v-if="authenticated" class="profile-page section-wrap">
+  <div v-if="authenticated" class="profile-page profile-cosmos section-wrap" :class="profileRootClasses(eligibilityDialogOpen)">
     <header class="profile-page-head">
-      <div>
-        <p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p>
-        <h1 id="profile-title">{{ t('profile.title') }}</h1>
+      <div class="profile-title-lockup">
+        <span class="profile-title-line" aria-hidden="true" />
+        <span class="profile-title-star" aria-hidden="true">✦</span>
+        <div>
+          <p class="eyebrow"><span />{{ t('profile.eyebrow') }}</p>
+          <h1 id="profile-title">{{ t('profile.title') }}</h1>
+        </div>
+        <span class="profile-title-star" aria-hidden="true">✦</span>
+        <span class="profile-title-line" aria-hidden="true" />
       </div>
-      <nav class="profile-tabs" aria-label="Profile sections">
-        <button type="button" :class="{ active: activeTab === 'profile' }" @click="setTab('profile')">{{ t('profile.tabProfile') }}</button>
-        <button type="button" :class="{ active: activeTab === 'security' }" @click="setTab('security')">{{ t('profile.tabSecurity') }}</button>
-        <button type="button" :class="{ active: activeTab === 'orders' }" @click="setTab('orders')">{{ t('profile.tabOrders') }}</button>
-        <button type="button" :class="{ active: activeTab === 'wallet' }" @click="setTab('wallet')">{{ t('profile.tabWallet') }}</button>
+      <nav class="profile-tabs" :aria-label="t('profile.title')">
+        <button type="button" :aria-current="profileTabAriaCurrent('profile', activeTab)" :class="{ active: activeTab === 'profile' }" @click="setTab('profile')">{{ t('profile.tabProfile') }}</button>
+        <button type="button" :aria-current="profileTabAriaCurrent('security', activeTab)" :class="{ active: activeTab === 'security' }" @click="setTab('security')">{{ t('profile.tabSecurity') }}</button>
+        <button type="button" :aria-current="profileTabAriaCurrent('orders', activeTab)" :class="{ active: activeTab === 'orders' }" @click="setTab('orders')">{{ t('profile.tabOrders') }}</button>
+        <button type="button" :aria-current="profileTabAriaCurrent('wallet', activeTab)" :class="{ active: activeTab === 'wallet' }" @click="setTab('wallet')">{{ t('profile.tabWallet') }}</button>
       </nav>
     </header>
 
-    <section v-show="activeTab === 'profile'" class="profile-overview" aria-labelledby="profile-title">
+    <section v-show="activeTab === 'profile'" class="profile-overview profile-celestial-panel" aria-labelledby="profile-title">
       <div v-if="loading" class="profile-loading">{{ t('profile.loading') }}</div>
       <template v-else-if="profile">
-        <div class="profile-overview-head">
+        <div v-if="!editing" class="profile-overview-head">
           <div class="profile-overview-identity">
-            <div class="profile-avatar" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="profile.avatarUrl || ''" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div>
-            <div><p class="eyebrow"><span />{{ t('profile.identity') }}</p><h2>{{ t('profile.greeting') }} {{ profile.nickname || userName || 'Stargazer' }}</h2><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
+            <div class="profile-avatar-orbit">
+              <span class="profile-avatar-ring" aria-hidden="true" />
+              <div class="profile-avatar" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="profile.avatarUrl || ''" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div>
+              <i aria-hidden="true">✦</i>
+            </div>
+            <div class="profile-identity-fields">
+              <div class="profile-display-field profile-display-name"><small>{{ t('profile.nickname') }}</small><h2>{{ profile.nickname || userName || 'Stargazer' }}</h2></div>
+              <div class="profile-display-field"><small>{{ t('profile.region') }}</small><p>{{ regionName }} <span aria-hidden="true">⌾</span></p></div>
+              <div class="profile-display-field profile-display-bio"><small>{{ t('profile.bio') }}</small><p>{{ profile.bio || t('profile.subtitle') }}</p></div>
+            </div>
           </div>
           <div class="profile-overview-actions">
-            <button v-if="!editing" class="button button-ghost profile-edit-button" @click="startEditing">{{ t('profile.edit') }} <span>↗</span></button>
+            <button class="button button-ghost profile-edit-button" @click="startEditing"><span aria-hidden="true">✎</span>{{ t('profile.edit') }}</button>
           </div>
         </div>
-        <form v-if="editing" class="profile-editor" @submit.prevent="saveProfile">
+        <form v-else class="profile-editor" @submit.prevent="saveProfile">
           <div class="profile-avatar-panel">
-            <div class="profile-avatar large" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="form.avatarUrl" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div>
+            <div class="profile-avatar-orbit editing"><span class="profile-avatar-ring" aria-hidden="true" /><div class="profile-avatar large" :class="{ 'fallback-mark': initials === '✦' }"><img v-if="hasAvatar" :src="form.avatarUrl" alt="" @error="avatarLoadFailed = true"><span v-else>{{ initials }}</span></div><i aria-hidden="true">✦</i></div>
             <label class="avatar-upload"><input type="file" accept="image/*" @change="handleAvatar"><span>{{ avatarUploading ? t('profile.uploading') : t('profile.changeAvatar') }}</span></label>
             <small>{{ t('profile.avatarHint') }}</small>
           </div>
@@ -198,7 +204,7 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
             <div class="profile-form-actions profile-field-wide"><button type="button" class="button button-ghost" @click="cancelEditing">{{ t('profile.cancel') }}</button><button class="button button-primary" :disabled="saving || avatarUploading">{{ saving ? t('profile.saving') : t('profile.save') }} <span>→</span></button></div>
           </div>
         </form>
-        <div v-else class="profile-overview-details">
+        <div v-if="!editing" class="profile-overview-details">
           <div class="profile-tags"><span v-for="tag in profile.tags" :key="tag.id">{{ tag.label }}</span><span v-if="!profile.tags.length">{{ t('profile.noTags') }}</span></div>
           <dl><div><dt>{{ t('profile.account') }}</dt><dd :title="accountDisplay">{{ accountDisplay }}</dd></div><div><dt>{{ t('profile.region') }}</dt><dd>{{ regionName }}</dd></div><div><dt>{{ t('profile.birthDate') }}</dt><dd>{{ profile.birthDate || t('profile.notSet') }}</dd></div><div><dt>{{ t('profile.rankingPrivacy') }}</dt><dd>{{ profile.privacyAnonymous ? t('profile.anonymousOn') : t('profile.anonymousOff') }}</dd></div></dl>
         </div>
@@ -212,7 +218,7 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
           <p>{{ companionCopy.body }}</p>
           <div class="companion-identity-actions">
             <button type="button" class="button button-primary" :disabled="checkingCompanionEligibility" @click="handleCompanionAction">{{ companionApplication ? companionCopy.view : checkingCompanionEligibility ? companionCopy.checking : companionCopy.apply }} <span>→</span></button>
-            <button type="button" class="button button-ghost" @click="scrollToContactVerification">{{ companionCopy.security }}</button>
+            <button type="button" class="button button-ghost" @click="openSecurityTab">{{ companionCopy.security }}</button>
           </div>
           <p v-if="companionEligibilityError" class="companion-feedback error" role="alert">{{ companionEligibilityError }}</p>
         </div>
@@ -222,17 +228,16 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
       </section>
     </section>
 
-    <section v-show="activeTab === 'security'" class="profile-tab-panel" aria-labelledby="contact-verification-title">
+    <section v-show="activeTab === 'security'" class="profile-tab-panel profile-celestial-panel profile-security-panel" aria-labelledby="contact-verification-title">
       <div id="contact-verification" class="profile-overview-contact">
         <div class="profile-section-heading contact-section-heading">
           <div><p class="eyebrow"><span />{{ companionCopy.contactEyebrow }}</p><h2 id="contact-verification-title">{{ companionCopy.contactTitle }}</h2><p>{{ companionCopy.contactBody }}</p></div>
-          <span class="contact-readiness" :class="{ ready: contactCompletion?.companionApplicationAllowed }"><i>{{ contactCompletion?.companionApplicationAllowed ? '✓' : '!' }}</i>{{ contactCompletion?.companionApplicationAllowed ? companionCopy.contactReady : companionCopy.contactPending }}</span>
         </div>
         <ContactVerificationPanel @state="handleContactState" />
       </div>
     </section>
 
-    <section v-show="activeTab === 'orders'" class="profile-tab-panel profile-section orders-section">
+    <section v-show="activeTab === 'orders'" class="profile-tab-panel profile-section profile-celestial-panel orders-section">
       <div class="profile-section-heading">
         <div><p class="eyebrow"><span />{{ t('profile.ordersEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p><h2>{{ t('profile.orders') }}</h2></div>
         <span>{{ t('profile.ordersHint') }}</span>
@@ -241,10 +246,10 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
       <div class="orders-table"><div class="order-row order-head"><span>{{ t('profile.order') }}</span><span>{{ t('profile.session') }}</span><span>{{ t('profile.duration') }}</span><span>{{ t('profile.total') }}</span><span>{{ t('profile.status') }}</span></div><article v-for="order in orders" :key="order.id" class="order-row"><div><strong>{{ order.id }}</strong><small>{{ order.date }}</small></div><div><strong>{{ order.game }}</strong><small>{{ order.role }} · {{ order.person }}</small></div><span>{{ order.duration }}</span><strong>{{ order.amount }}</strong><em>{{ order.status }}</em></article></div>
     </section>
 
-    <section v-show="activeTab === 'wallet'" class="profile-tab-panel profile-section wallet-section">
-      <p class="eyebrow"><span />{{ t('profile.walletEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p>
+    <section v-show="activeTab === 'wallet'" class="profile-tab-panel profile-section profile-celestial-panel wallet-section">
+      <div class="profile-section-heading"><div><p class="eyebrow"><span />{{ t('profile.walletEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p><h2>{{ t('profile.wallet') }}</h2></div><span>{{ t('profile.available') }}</span></div>
       <p class="preview-note">{{ t('profile.demoNote') }}</p>
-      <div class="wallet-card"><div><h2>{{ t('profile.wallet') }}</h2><small>{{ t('profile.available') }}</small><strong class="wallet-balance">$128.50</strong></div><div class="wallet-actions"><button class="button button-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span>→</span></button><button class="button button-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span>→</span></button></div></div>
+      <div class="wallet-card"><div><small>{{ t('profile.available') }}</small><strong class="wallet-balance">$128.50</strong></div><div class="wallet-actions"><button class="button button-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span>→</span></button><button class="button button-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span>→</span></button></div></div>
       <p v-if="notice" class="wallet-notice" role="status">{{ notice }}</p>
     </section>
 
@@ -255,7 +260,7 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
         <p class="eyebrow"><span />ACCOUNT SIGNAL REQUIRED</p>
         <h2 id="eligibility-dialog-title">{{ companionCopy.incompleteTitle }}</h2>
         <p>{{ companionCopy.incompleteBody }}</p>
-        <div class="eligibility-dialog-actions"><button type="button" class="button button-ghost" @click="eligibilityDialogOpen = false">{{ companionCopy.later }}</button><button type="button" class="button button-primary" autofocus @click="scrollToContactVerification">{{ companionCopy.complete }} <span>→</span></button></div>
+        <div class="eligibility-dialog-actions"><button type="button" class="button button-ghost" @click="eligibilityDialogOpen = false">{{ companionCopy.later }}</button><button type="button" class="button button-primary" autofocus @click="openSecurityTab">{{ companionCopy.complete }} <span>→</span></button></div>
       </section>
     </div>
   </div>

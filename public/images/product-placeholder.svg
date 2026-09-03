@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" role="img" aria-label="Product image unavailable">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#11132d"/>
+      <stop offset="1" stop-color="#302754"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="50%">
+      <stop stop-color="#9278df" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#9278df" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="900" fill="url(#background)"/>
+  <rect width="800" height="900" fill="url(#glow)"/>
+  <g fill="none" stroke="#e8b96f" opacity=".7">
+    <ellipse cx="400" cy="386" rx="212" ry="86" transform="rotate(-24 400 386)" stroke-width="2"/>
+    <ellipse cx="400" cy="386" rx="212" ry="86" transform="rotate(28 400 386)" stroke-width="2"/>
+    <circle cx="400" cy="386" r="104" stroke-width="3"/>
+  </g>
+  <circle cx="400" cy="386" r="70" fill="#7059b6" opacity=".72"/>
+  <text x="400" y="418" fill="#fff3dc" font-family="Georgia, serif" font-size="84" text-anchor="middle">M</text>
+  <g fill="#e8b96f">
+    <circle cx="225" cy="270" r="5"/>
+    <circle cx="584" cy="490" r="4"/>
+    <path d="M610 260l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/>
+  </g>
+  <text x="400" y="680" fill="#f0e8da" font-family="Georgia, serif" font-size="31" text-anchor="middle" letter-spacing="10">MYSTIKOS</text>
+  <text x="400" y="727" fill="#aaa4be" font-family="Arial, sans-serif" font-size="17" text-anchor="middle" letter-spacing="3">COLLECTION IMAGE</text>
+</svg>

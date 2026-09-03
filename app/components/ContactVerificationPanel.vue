@@ -3,12 +3,6 @@ import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js'
 import type { AccountCompletion, CompanionContactType } from '~/composables/useCompanionApplication'
 import { maskPhone } from '~/utils/privacy'
 
-const props = withDefaults(defineProps<{
-  showReadyAction?: boolean
-}>(), {
-  showReadyAction: false
-})
-
 const emit = defineEmits<{
   state: [value: AccountCompletion]
 }>()
@@ -32,12 +26,12 @@ const error = ref('')
 
 const copy = computed(() => locale.value === 'zh' ? {
   loading: '正在读取账号联系方式…', email: '邮箱地址', phone: '手机号码', send: '发送验证码', sending: '正在发送…', sent: '验证码已发送', verify: '验证并保存', verifying: '正在验证…', verified: '已验证', unverified: '待验证', change: '更换', cancel: '取消更换',
-  emailPlaceholder: 'you@example.com', phonePlaceholder: '请输入本地手机号', code: '6 位验证码', ready: '已满足申请条件：邮箱或手机号已完成一项验证。', apply: '继续陪玩申请',
-  rule: '邮箱和手机号任选一项完成验证即可；已验证的手机号只显示前 3 位和后 4 位。', invalidEmail: '请输入有效的邮箱地址。', invalidPhone: '请输入有效的国际手机号。', invalidCode: '请输入 6 位数字验证码。', loadError: '无法读取账号联系方式。'
+  emailPlaceholder: 'you@example.com', phonePlaceholder: '请输入本地手机号', code: '6 位验证码',
+  invalidEmail: '请输入有效的邮箱地址。', invalidPhone: '请输入有效的国际手机号。', invalidCode: '请输入 6 位数字验证码。', loadError: '无法读取账号联系方式。'
 } : {
   loading: 'Loading account contacts…', email: 'Email address', phone: 'Mobile number', send: 'Send code', sending: 'Sending…', sent: 'Code sent', verify: 'Verify and save', verifying: 'Verifying…', verified: 'Verified', unverified: 'Not verified', change: 'Change', cancel: 'Cancel change',
-  emailPlaceholder: 'you@example.com', phonePlaceholder: 'Local mobile number', code: '6-digit code', ready: 'Application requirement met: one contact method is verified.', apply: 'Continue application',
-  rule: 'Verify either email or mobile. Verified mobile numbers only show the first 3 and last 4 characters.', invalidEmail: 'Enter a valid email address.', invalidPhone: 'Enter a valid international phone number.', invalidCode: 'Enter the 6-digit verification code.', loadError: 'Unable to load account contacts.'
+  emailPlaceholder: 'you@example.com', phonePlaceholder: 'Local mobile number', code: '6-digit code',
+  invalidEmail: 'Enter a valid email address.', invalidPhone: 'Enter a valid international phone number.', invalidCode: 'Enter the 6-digit verification code.', loadError: 'Unable to load account contacts.'
 })
 
 const completion = computed(() => companionApi.accountCompletion.value)
@@ -200,10 +194,8 @@ onMounted(refresh)
         </article>
       </section>
 
-      <p v-if="!completion?.companionApplicationAllowed" class="contact-verification-rule"><span>✦</span>{{ copy.rule }}</p>
       <p v-if="notice" class="companion-feedback success" role="status">{{ notice }}</p>
       <p v-if="error" class="companion-feedback error" role="alert">{{ error }}</p>
-      <div v-if="completion?.companionApplicationAllowed" class="security-ready"><div><span>✦</span><strong>{{ copy.ready }}</strong></div><NuxtLink v-if="props.showReadyAction" to="/companion/apply" class="button button-primary">{{ copy.apply }} →</NuxtLink></div>
     </template>
   </div>
 </template>
