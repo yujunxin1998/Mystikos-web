@@ -1,4 +1,5 @@
 import securityConfig from './config/security.config'
+import { MYSTIKOS_API_BASE } from './config/backend.config.mjs'
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-23',
@@ -6,8 +7,8 @@ export default defineNuxtConfig({
   css: ['~/assets/css/fonts.css', '~/assets/css/main.css', '~/assets/css/auth.css', '~/assets/css/companion.css', '~/assets/css/companion-card.css', '~/assets/css/companion-cover.css', '~/assets/css/companion-public.css', '~/assets/css/companion-carousel.css', '~/assets/css/companion-public-carousel.css', '~/assets/css/companion-video-list.css', '~/assets/css/companion-public-video-list.css'],
   runtimeConfig: {
     // Override with NUXT_MYSTIKOS_API_BASE in deployment environments.
-    // Required. Configure with NUXT_MYSTIKOS_API_BASE; do not bake deployment addresses into the bundle.
-    mystikosApiBase: '',
+    // Server-only: the browser still calls the same-origin /api/auth-proxy route.
+    mystikosApiBase: MYSTIKOS_API_BASE,
     public: {
       // 默认值定义在 config/security.config.ts，部署时可直接编辑该文件或通过环境变量覆盖。
       passwordEncryptionEnabled: securityConfig.passwordEncryptionEnabled

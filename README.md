@@ -75,12 +75,12 @@ npm run preview
 
 ## 后端认证接口配置
 
-默认后端地址为：`http://116.62.218.227:8099`。
+默认后端地址为：`https://www.joinmystikos.com`。
 
 部署到其他环境时，可通过环境变量覆盖：
 
 ```powershell
-$env:NUXT_MYSTIKOS_API_BASE = 'https://api.example.com'
+$env:NUXT_MYSTIKOS_API_BASE = 'https://www.joinmystikos.com'
 npm run dev
 ```
 
@@ -112,7 +112,7 @@ npm run dev
 Discord OAuth 由后端发起并处理回调。前端只需要配置后端 API 地址：
 
 ```powershell
-$env:NUXT_MYSTIKOS_API_BASE = 'http://your-api-host:8099'
+$env:NUXT_MYSTIKOS_API_BASE = 'https://www.joinmystikos.com'
 ```
 
 后端运行环境需要配置：
@@ -120,7 +120,7 @@ $env:NUXT_MYSTIKOS_API_BASE = 'http://your-api-host:8099'
 ```powershell
 $env:DISCORD_CLIENT_ID = '你的 Discord Client ID'
 $env:DISCORD_CLIENT_SECRET = '你的 Discord Client Secret'
-$env:DISCORD_REDIRECT_URI = 'http://your-api-host:8099/api/v1/auth/oauth/discord/callback'
+$env:DISCORD_REDIRECT_URI = 'https://www.joinmystikos.com/api/v1/auth/oauth/discord/callback'
 $env:OAUTH_FRONTEND_RETURN_URI = 'http://127.0.0.1:3000/auth'
 ```
 
@@ -156,7 +156,7 @@ npm run build
 $env:NODE_ENV = 'production'
 $env:HOST = '0.0.0.0'
 $env:PORT = '3000'
-$env:NUXT_MYSTIKOS_API_BASE = 'https://api.example.com'
+$env:NUXT_MYSTIKOS_API_BASE = 'https://www.joinmystikos.com'
 node .output/server/index.mjs
 ```
 
@@ -168,7 +168,7 @@ node .output/server/index.mjs
 docker build -t mystikos-web:latest .
 docker run -d --name mystikos-web --restart unless-stopped \
   -p 3000:3000 \
-  -e NUXT_MYSTIKOS_API_BASE=https://api.example.com \
+  -e NUXT_MYSTIKOS_API_BASE=https://www.joinmystikos.com \
   mystikos-web:latest
 ```
 
