@@ -2,7 +2,7 @@
 import { shouldCloseProfileMenu } from '~/utils/profile-menu.mjs'
 import { wishlistLoginRedirect } from '~/utils/commerce-api.mjs'
 
-const { locale, t, toggleLocale, toggleTheme } = useMystikos()
+const { locale, theme, t, toggleLocale, toggleTheme } = useMystikos()
 const { authenticated, userName, userAvatarUrl, logout } = useDemoAuth()
 const profileApi = useProfileApi()
 const commerceApi = useCommerceApi()
@@ -101,6 +101,7 @@ const confirmLogout = async () => {
 
     <div class="nav-wrap" :class="{ 'is-open': open }">
       <nav aria-label="Primary navigation">
+        <NuxtLink to="/" @click="close">{{ t('nav.home') }}</NuxtLink>
         <NuxtLink to="/companions" @click="close">{{ t('nav.companions') }}</NuxtLink>
         <NuxtLink to="/shop" @click="close">{{ t('nav.shop') }}</NuxtLink>
         <NuxtLink v-if="authenticated" to="/profile" @click="close">{{ t('nav.mine') }}</NuxtLink>
@@ -120,14 +121,17 @@ const confirmLogout = async () => {
             <circle cx="17.3" cy="20.35" r="1.35" fill="currentColor"/>
           </svg>
         </NuxtLink>
+        <button class="header-icon-btn header-utility-btn" type="button" :aria-label="t('nav.theme')" :title="t('nav.theme')" @click="toggleTheme">
+          <svg v-if="theme === 'dark'" class="header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none"><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.72 5.28l-1.42 1.42M6.7 17.3l-1.42 1.42M18.72 18.72l-1.42-1.42M6.7 6.7 5.28 5.28" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <svg v-else class="header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M20.2 15.2A8.7 8.7 0 0 1 8.8 3.8 8.7 8.7 0 1 0 20.2 15.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="header-icon-btn header-language-btn" type="button" :aria-label="t('nav.languageHint')" :title="t('nav.languageHint')" @click="toggleLocale">{{ locale === 'zh' ? 'EN' : '中' }}</button>
         <div v-if="authenticated" class="profile-menu">
           <button ref="profileTriggerRef" class="profile-chip" type="button" :title="t('profile.title')" :aria-expanded="profileMenuOpen" aria-haspopup="menu" @click="profileMenuOpen = !profileMenuOpen"><img v-if="userAvatarUrl && !avatarFailed" :src="userAvatarUrl" alt="" @error="avatarFailed = true"><span v-else>{{ headerInitial }}</span></button>
           <div v-if="profileMenuOpen" ref="profileMenuRef" class="profile-menu-popover" role="menu">
             <div class="profile-menu-heading"><span>{{ userName || 'Stargazer' }}</span><small>{{ companionApproved ? 'COMPANION' : 'MEMBER' }}</small></div>
             <NuxtLink to="/profile" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.profileHome') }}</span><small>{{ t('nav.profileHomeHint') }}</small></NuxtLink>
             <NuxtLink v-if="companionApproved" to="/companion/card" role="menuitem" @click="closeProfileMenu"><span>{{ t('nav.companionCard') }}</span><small>{{ t('nav.companionCardHint') }}</small></NuxtLink>
-            <button type="button" role="menuitem" class="profile-menu-action" @click="toggleTheme(); closeProfileMenu()"><span>{{ t('nav.theme') }}</span><small>{{ t('nav.themeHint') }}</small></button>
-            <button type="button" role="menuitem" class="profile-menu-action" @click="toggleLocale(); closeProfileMenu()"><span>{{ t('nav.language') }}</span><small>{{ t('nav.languageHint') }}</small></button>
             <button type="button" role="menuitem" class="profile-menu-action danger" @click="closeProfileMenu(); showLogoutConfirm = true"><span>{{ t('auth.logout') }}</span><small>{{ t('nav.logoutHint') }}</small></button>
           </div>
         </div>

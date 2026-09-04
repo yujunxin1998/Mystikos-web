@@ -76,7 +76,7 @@
 .shop-cosmos-sky i:nth-child(4) { width: 420px; height: 160px; left: -200px; top: 820px; transform: rotate(-20deg); }
 
 .shop-cosmos .shop-hero {
-  min-height: 390px;
+  min-height: 330px;
   padding-top: 58px;
   padding-bottom: 52px;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -99,16 +99,6 @@
   text-shadow: 0 14px 30px rgba(29, 22, 57, 0.08);
 }
 
-.shop-cosmos .shop-hero-copy > p:not(.eyebrow) {
-  max-width: 510px;
-  margin: 22px 0 0;
-  color: var(--shop-muted);
-  font-size: 15px;
-  line-height: 1.8;
-}
-
-.shop-hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 27px; color: var(--shop-muted); font-size: 11px; letter-spacing: 0.08em; }
-.shop-hero-meta i { color: var(--shop-gold); font-size: 8px; font-style: normal; }
 .shop-hero-aside { min-width: 0; }
 .shop-cosmos .shop-hero-orbit { height: 245px; }
 .shop-cosmos .shop-hero-orbit i { border-color: var(--shop-line-strong); }
@@ -126,7 +116,7 @@
 }
 
 .shop-cosmos .shop-cart-trigger {
-  position: absolute;
+  position: static;
   z-index: 2;
   right: 0;
   bottom: -28px;
@@ -153,7 +143,11 @@
 .shop-cart-trigger small { color: var(--shop-muted); font-size: 9px; font-weight: 500; letter-spacing: 0.03em; }
 .shop-cosmos .shop-cart-trigger strong { min-width: 30px; height: 30px; margin: 0; background: var(--shop-gold); color: #191425; }
 
-.shop-cosmos .shop-content { padding-top: 74px; padding-bottom: 100px; }
+.shop-cosmos .shop-content { padding-top: 32px; padding-bottom: 100px; }
+.shop-toolbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+.shop-toolbar-actions .shop-cart-trigger { min-width: 196px; min-height: 48px; grid-template-columns: 30px 1fr auto; padding: 7px 10px; }
+.shop-toolbar-actions .shop-cart-icon { width: 30px; height: 30px; }
+.shop-toolbar-actions .shop-cart-trigger strong { min-width: 26px; height: 26px; }
 .shop-cosmos .commerce-alert {
   display: grid;
   grid-template-columns: 36px 1fr auto;
@@ -313,7 +307,8 @@
   .shop-title-lockup i { width: 24px; }
   .shop-hero-aside { display: none; }
   .shop-cosmos .shop-cart-trigger { right: auto; left: 0; min-width: min(280px, 100%); }
-  .shop-cosmos .shop-content { padding-top: 66px; }
+  .shop-toolbar-actions { width: 100%; align-items: flex-start; flex-direction: column; }
+  .shop-cosmos .shop-content { padding-top: 34px; }
   .shop-cosmos .shop-toolbar { align-items: stretch; gap: 18px; }
   .shop-cosmos .category-list { width: 100%; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; scrollbar-width: none; }
   .shop-cosmos .category-list::-webkit-scrollbar { display: none; }

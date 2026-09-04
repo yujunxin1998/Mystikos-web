@@ -22,11 +22,8 @@ const loading = ref(true)
 const error = ref('')
 const gallery = ref<{ name: string; dataUrl: string }[]>([])
 
-const bookingStart = ref('')
-const bookingDurationHours = ref(1)
 const bookingWorking = ref(false)
 const bookingError = ref('')
-const bookingFeedback = ref('')
 
 const minStartValue = computed(() => {
   const soonest = new Date(Date.now() + 15 * 60_000)
@@ -38,22 +35,12 @@ const requireBookingLogin = async () => {
   await navigateTo(`/auth?redirect=${encodeURIComponent(route.fullPath)}`)
   return false
 }
-const addToBookingCart = async () => {
-  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择点单开始时间'; return }
-  if (!(await requireBookingLogin())) return
-  bookingWorking.value = true; bookingError.value = ''; bookingFeedback.value = ''
-  try {
-    await bookingApi.addBookingCartLine(companionId.value, new Date(bookingStart.value).toISOString(), bookingDurationHours.value)
-    bookingFeedback.value = locale.value === 'zh' ? '已加入点单车' : 'Added to order cart'
-  } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '加入点单车失败' }
-  finally { bookingWorking.value = false }
-}
 const bookNow = async () => {
-  if (!companionId.value || !bookingStart.value) { bookingError.value = '请选择点单开始时间'; return }
+  if (!companionId.value) return
   if (!(await requireBookingLogin())) return
   bookingWorking.value = true; bookingError.value = ''
   try {
-    const bookingId = await bookingApi.createBooking(companionId.value, new Date(bookingStart.value).toISOString(), bookingDurationHours.value)
+    const bookingId = await bookingApi.createBooking(companionId.value, new Date(minStartValue.value).toISOString(), 1)
     await navigateTo(`/bookings/${bookingId}`)
   } catch (cause) { bookingError.value = cause instanceof Error ? cause.message : '创建点单失败'; bookingWorking.value = false }
 }
@@ -122,17 +109,8 @@ onBeforeUnmount(() => { if (galleryTimer) clearInterval(galleryTimer); window.re
     <div v-else-if="error" class="public-profile-state section-wrap"><strong>{{ error }}</strong><NuxtLink to="/companions" class="button button-primary">{{ t('public.back') }}</NuxtLink></div>
     <template v-else-if="person">
       <section class="public-card-layout section-wrap"><div class="public-card-primary"><article class="live-companion-card public-card-shell"><div class="live-card-cover" :class="{ 'has-cover-image': person.coverUrl }" :style="person.coverUrl ? { backgroundImage: `linear-gradient(180deg, rgba(12,12,31,.08), rgba(12,12,31,.46)), url(${person.coverUrl})` } : undefined"><div class="live-card-avatar"><img v-if="person.avatarUrl" :src="person.avatarUrl" :alt="person.name"><span v-else>{{ person.name.charAt(0).toUpperCase() }}</span></div><em>{{ person.availability }}</em></div><div class="live-card-body"><div class="live-card-name"><div><h2>{{ person.name }}</h2><p>{{ person.tagline }}</p></div><small>✦ {{ t('public.verified') }}</small></div><div class="live-card-tags"><span v-for="tag in person.tags" :key="tag">{{ tag }}</span></div><p class="live-card-bio">{{ person.bio }}</p><section v-if="showcaseAudios.length" class="public-card-voices embedded"><p>♫ {{ t('public.voice') }}</p><article v-for="(audio, index) in showcaseAudios" :key="`audio-${index}`"><div><small>{{ String(index + 1).padStart(2, '0') }}</small><strong>{{ audio.name }}</strong></div><audio :src="audio.url" controls preload="none" /></article></section><div v-if="companionId" class="booking-widget">
-        <p class="eyebrow"><span />BOOK BY THE HOUR</p>
-        <div class="booking-widget-row">
-          <label>开始时间<input v-model="bookingStart" type="datetime-local" :min="minStartValue"></label>
-          <label>时长（小时）<div class="quantity-stepper"><button type="button" :disabled="bookingDurationHours <= 1" @click="bookingDurationHours = Math.round((bookingDurationHours - 1) * 10) / 10">−</button><span>{{ bookingDurationHours }}</span><button type="button" :disabled="bookingDurationHours >= 24" @click="bookingDurationHours = Math.round((bookingDurationHours + 1) * 10) / 10">+</button></div></label>
-        </div>
         <p v-if="bookingError" class="commerce-alert" role="alert">{{ bookingError }}</p>
-        <p v-if="bookingFeedback" class="booking-feedback">{{ bookingFeedback }}</p>
-        <div class="booking-widget-actions">
-          <button class="button" type="button" :disabled="bookingWorking" @click="addToBookingCart">加入点单车</button>
-          <button class="button button-primary public-profile-cta" type="button" :disabled="bookingWorking" @click="bookNow">{{ bookingWorking ? '处理中…' : '立即点单' }} <span>→</span></button>
-        </div>
+        <button class="button button-primary public-profile-cta" type="button" :disabled="bookingWorking" @click="bookNow">{{ bookingWorking ? '处理中…' : '立即点单' }} <span>→</span></button>
       </div></div></article></div><div class="public-card-secondary"><div v-if="gallery.length" class="public-card-gallery"><button type="button" class="public-gallery-expand" :aria-label="t('public.photoAlt', { name: person.name, count: activePhoto + 1 })" @click="openImage"><img :src="gallery[activePhoto]?.dataUrl" :alt="t('public.photoAlt', { name: person.name, count: activePhoto + 1 })"><span>⛶</span></button><template v-if="gallery.length > 1"><button class="previous" type="button" :aria-label="t('public.previousPhoto')" @click="stepPhoto(-1)">←</button><button class="next" type="button" :aria-label="t('public.nextPhoto')" @click="stepPhoto(1)">→</button><div class="public-gallery-dots"><button v-for="(_, index) in gallery" :key="index" type="button" :class="{ active: index === activePhoto }" @click="activePhoto = index" /></div></template></div><section v-if="showcaseVideos.length" class="public-inline-videos"><p class="eyebrow"><span />{{ t('public.highlights') }}</p><div class="public-video-grid"><button v-for="(video, index) in showcaseVideos" :key="`video-${index}`" type="button" class="public-video-tile" @click="openVideo(video)"><video :src="video.url" preload="metadata" muted playsinline /><span class="public-video-play">▶</span><div><small>{{ t('public.highlight') }} {{ String(index + 1).padStart(2, '0') }}</small><strong>{{ video.name }}</strong></div></button></div></section></div></section>
     </template>
     <Teleport to="body"><div v-if="activeVideo" class="public-video-modal" role="dialog" aria-modal="true" :aria-label="activeVideo.name" @click.self="closeVideo"><button type="button" class="public-video-close" :aria-label="locale === 'zh' ? '关闭视频' : 'Close video'" @click="closeVideo">×</button><div class="public-video-modal-card"><video :key="activeVideo.url" :src="activeVideo.url" controls autoplay playsinline /><strong>{{ activeVideo.name }}</strong></div></div></Teleport>
@@ -141,14 +119,7 @@ onBeforeUnmount(() => { if (galleryTimer) clearInterval(galleryTimer); window.re
 </template>
 
 <style scoped>
-.booking-widget { display: grid; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
-.booking-widget-row { display: flex; gap: 16px; flex-wrap: wrap; }
-.booking-widget-row label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
-.booking-widget-row input[type="datetime-local"] { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
-.quantity-stepper { display: flex; align-items: center; gap: 12px; }
-.quantity-stepper button { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); cursor: pointer; }
-.booking-widget-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.booking-feedback { color: var(--gold); font-size: 12px; }
+.booking-widget { display: grid; justify-items: start; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
 .public-profile-state { min-height: 55vh; display: grid; place-content: center; justify-items: center; gap: 20px; color: var(--muted); }
 .public-card-layout { display: grid; grid-template-columns: minmax(340px,.85fr) minmax(0,1.15fr); align-items: start; gap: 24px; padding-top: 42px; padding-bottom: 62px; }
 .public-card-shell { min-height: 520px; }

@@ -232,19 +232,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleDialogKeydow
       <div class="shop-hero-copy">
         <p class="eyebrow"><span />{{ t('shop.eyebrow') }}</p>
         <div class="shop-title-lockup"><i aria-hidden="true" /><h1>{{ t('shop.title') }}</h1><span aria-hidden="true">✦</span></div>
-        <p>{{ t('shop.body') }}</p>
-        <div class="shop-hero-meta" aria-label="商城特色">
-          <span>公会甄选</span><i aria-hidden="true">✦</i><span>限定藏品</span><i aria-hidden="true">✦</i><span>安心交易</span>
-        </div>
       </div>
       <div class="shop-hero-aside" aria-hidden="true">
         <div class="shop-hero-orbit"><i /><i /><span>✦</span><div class="shop-hero-object">M</div></div>
       </div>
-      <button class="shop-cart-trigger" type="button" @click="openCart">
-        <span class="shop-cart-icon" aria-hidden="true">⌑</span>
-        <span>购物车<small>查看已选藏品</small></span>
-        <strong>{{ cartCount }}</strong>
-      </button>
     </section>
 
     <section class="shop-content section-wrap">
@@ -257,9 +248,12 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleDialogKeydow
 
       <div class="shop-toolbar">
         <div><p class="eyebrow"><span />COLLECTION</p><h2>浏览藏品</h2></div>
-        <div class="category-list" :aria-label="t('shop.filter')">
-          <button v-for="item in categories" :key="item" :class="{ active: category === item }" :aria-pressed="category === item" @click="category = item">
-            {{ item === 'all' ? t('shop.all') : `分类 ${item}` }}
+        <div class="shop-toolbar-actions">
+          <div class="category-list" :aria-label="t('shop.filter')">
+            <button v-for="item in categories" :key="item" :class="{ active: category === item }" :aria-pressed="category === item" @click="category = item">{{ item === 'all' ? t('shop.all') : `分类 ${item}` }}</button>
+          </div>
+          <button class="shop-cart-trigger" type="button" @click="openCart">
+            <span class="shop-cart-icon" aria-hidden="true">⌑</span><span>购物车<small>查看已选藏品</small></span><strong>{{ cartCount }}</strong>
           </button>
         </div>
       </div>
