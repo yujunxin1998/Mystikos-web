@@ -142,15 +142,14 @@ body{font-size:var(--text-base)}
 .profile-overview-details dd[title]{cursor:default}
 @media (max-width:800px){.profile-overview-details dl{grid-template-columns:1fr 1fr}}
 
-/* Header icon buttons: matched circle controls for wishlist + booking cart. */
+/* Header icon buttons: matched circle controls for wishlist, cart, booking cart. */
 .header-actions{gap:10px;align-items:center}
 .header-icon-btn{position:relative;width:36px;height:36px;display:inline-grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);line-height:1;text-decoration:none;transition:border-color .2s,background .2s,color .2s,transform .2s}
 .header-icon-btn:hover{border-color:var(--lav-deep);background:color-mix(in srgb,var(--lav) 12%,transparent);color:var(--lav-deep);transform:translateY(-1px)}
 .header-icon{width:18px;height:18px;display:block}
-.header-icon--cart{width:20px;height:20px}
+.header-icon--cart,.header-icon--booking{width:20px;height:20px}
 .header-language-btn{font:700 10px/1 var(--font-mono);letter-spacing:.02em}
-.wishlist-count,.booking-cart-link{width:36px;height:36px;font-size:inherit}
-.wishlist-count span{position:static;right:auto;top:auto;min-width:0;height:auto;padding:0;background:transparent;color:inherit;border-radius:0;font:inherit;display:contents}
-.wishlist-count .wishlist-badge{position:absolute;top:-3px;right:-3px;z-index:1;min-width:15px;height:15px;padding:0 4px;border:0;border-radius:999px;background:#f0b57a;color:#2c2116;font:700 9px/15px var(--font-sans);letter-spacing:0;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--paper)}
-.site-shell[data-theme="dark"] .wishlist-count .wishlist-badge{box-shadow:0 0 0 1.5px var(--night)}
+.wishlist-count,.cart-count,.booking-count{width:36px;height:36px;font-size:inherit}
+.header-badge{position:absolute;top:-3px;right:-3px;z-index:1;min-width:15px;height:15px;padding:0 4px;border:0;border-radius:999px;background:#f0b57a;color:#2c2116;font:700 9px/15px var(--font-sans);letter-spacing:0;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--paper)}
+.site-shell[data-theme="dark"] .header-badge{box-shadow:0 0 0 1.5px var(--night)}
 @media (max-width:800px){.site-header{justify-content:space-between}.nav-wrap{margin-left:0}.header-actions{margin-left:0}}

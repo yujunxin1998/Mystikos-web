@@ -1,26 +1,21 @@
 <script setup lang="ts">
-import type { CartLine, ProductView } from '../../composables/useCommerceApi'
-import { openCommerceCheckout, requireCommerceLogin } from '../../utils/commerce-api.mjs'
+import type { ProductView } from '../../composables/useCommerceApi'
+import { requireCommerceLogin } from '../../utils/commerce-api.mjs'
 import { dialogFocusIndex, productImageSource, recoverProductImage, shopErrorPresentation, shopErrorSurface } from '../../utils/shop-presentation.mjs'
 
 const { t } = useMystikos()
 const { authenticated } = useDemoAuth()
 const api = useCommerceApi()
 const { items: wishlist, refresh: refreshWishlist, add: addWishlist, remove: removeWishlist, clear: clearWishlist } = useCommerceWishlist()
+const { count: cartCount, refresh: refreshCart, add: addCartLine, clear: clearCart, openDrawer: openCartDrawer } = useCommerceCart()
 const { addresses, refresh: refreshAddresses } = useAddressBook()
 
 const products = ref<ProductView[]>([])
-const cart = ref<CartLine[]>([])
-const selectedCartIds = ref<Set<number>>(new Set())
 const selected = ref<ProductView | null>(null)
 const productQuantity = ref(1)
 const category = ref<number | 'all'>('all')
-const cartOpen = ref(false)
-const checkoutOpen = ref(false)
-const checkoutAddressId = ref<number | null>(null)
 const loading = ref(true)
 const actionId = ref<number | null>(null)
-const checkoutLoading = ref(false)
 const error = ref('')
 const productLoadFailed = ref(false)
 
@@ -33,12 +28,8 @@ const buyNowLoading = ref(false)
 const categories = computed(() => ['all' as const, ...new Set(products.value.map(product => product.categoryId))])
 const filteredProducts = computed(() => category.value === 'all' ? products.value : products.value.filter(product => product.categoryId === category.value))
 const wishlistIds = computed(() => new Set(wishlist.value.map(line => line.productId)))
-const selectedCartLines = computed(() => cart.value.filter(line => selectedCartIds.value.has(line.productId)))
-const cartCount = computed(() => cart.value.reduce((count, line) => count + line.quantity, 0))
-const cartTotal = computed(() => selectedCartLines.value.reduce((total, line) => total + Number(line.subtotal), 0))
-const allSelected = computed(() => cart.value.length > 0 && selectedCartIds.value.size === cart.value.length)
 const errorPresentation = computed(() => shopErrorPresentation(productLoadFailed.value))
-const activeOverlayKey = computed(() => selected.value ? 'product' : cartOpen.value ? 'cart' : checkoutOpen.value ? 'checkout' : buyNowOpen.value ? 'buy-now' : '')
+const activeOverlayKey = computed(() => selected.value ? 'product' : buyNowOpen.value ? 'buy-now' : '')
 const errorSurface = computed(() => shopErrorSurface(error.value, productLoadFailed.value, activeOverlayKey.value))
 const money = (value: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value)
 const imageFor = (product: ProductView) => productImageSource(product.images)
@@ -55,16 +46,9 @@ const loadProducts = async () => {
 }
 
 const loadMemberCommerce = async () => {
-  if (!authenticated.value) { clearWishlist(); cart.value = []; selectedCartIds.value = new Set(); return }
+  if (!authenticated.value) { clearWishlist(); clearCart(); return }
   // 心愿单 / 购物车 / 地址是登录后的附属数据；任一失败不应挡住商品浏览页。
-  const [, cartResult] = await Promise.allSettled([refreshWishlist(), api.getCart(), refreshAddresses()])
-  if (cartResult.status === 'fulfilled') {
-    cart.value = cartResult.value || []
-    selectedCartIds.value = new Set(cart.value.map(line => line.productId))
-    return
-  }
-  cart.value = []
-  selectedCartIds.value = new Set()
+  await Promise.allSettled([refreshWishlist(), refreshCart(), refreshAddresses()])
 }
 
 const openProduct = async (productId: number) => {
@@ -90,61 +74,20 @@ const addToCart = async (productId: number, quantity = 1) => {
   actionId.value = productId
   error.value = ''
   try {
-    await api.addToCart(productId, quantity)
-    cart.value = await api.getCart() || []
-    selectedCartIds.value = new Set(cart.value.map(line => line.productId))
+    await addCartLine(productId, quantity)
     selected.value = null
-    cartOpen.value = true
+    openCartDrawer()
   } catch (cause) { error.value = cause instanceof Error ? cause.message : '加入购物车失败' }
   finally { actionId.value = null }
 }
 
-const removeFromCart = async (productId: number) => {
-  actionId.value = productId
-  try {
-    await api.removeFromCart(productId)
-    cart.value = await api.getCart() || []
-    selectedCartIds.value = new Set([...selectedCartIds.value].filter(id => id !== productId))
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '移出购物车失败' }
-  finally { actionId.value = null }
-}
-
-const toggleCartLine = (productId: number) => {
-  const next = new Set(selectedCartIds.value)
-  if (next.has(productId)) next.delete(productId)
-  else next.add(productId)
-  selectedCartIds.value = next
-}
-const toggleSelectAll = () => {
-  selectedCartIds.value = allSelected.value ? new Set() : new Set(cart.value.map(line => line.productId))
-}
-
 const openCart = async () => {
   if (!(await requireLogin())) return
-  cart.value = await api.getCart() || []
-  selectedCartIds.value = new Set(cart.value.map(line => line.productId))
-  cartOpen.value = true
-}
-
-const openCheckout = () => {
-  if (!selectedCartLines.value.length) return
-  checkoutAddressId.value = addresses.value.find(a => a.isDefault)?.id ?? addresses.value[0]?.id ?? null
-  openCommerceCheckout(cartOpen, checkoutOpen)
-}
-
-const submitOrder = async () => {
-  if (!checkoutAddressId.value) { error.value = '请选择收货地址'; return }
-  checkoutLoading.value = true
   error.value = ''
   try {
-    const orderId = await api.createOrder([...selectedCartIds.value], checkoutAddressId.value)
-    cart.value = await api.getCart() || []
-    selectedCartIds.value = new Set(cart.value.map(line => line.productId))
-    checkoutOpen.value = false
-    cartOpen.value = false
-    await navigateTo(`/shop/orders/${orderId}`)
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '创建订单失败' }
-  finally { checkoutLoading.value = false }
+    await Promise.all([refreshCart(), refreshAddresses()])
+    openCartDrawer()
+  } catch (cause) { error.value = cause instanceof Error ? cause.message : '购物车加载失败' }
 }
 
 const openBuyNow = async (product: ProductView) => {
@@ -170,8 +113,6 @@ const submitBuyNow = async () => {
 let previousDialogFocus: HTMLElement | null = null
 const closeActiveOverlay = () => {
   if (selected.value) selected.value = null
-  else if (cartOpen.value) cartOpen.value = false
-  else if (checkoutOpen.value) checkoutOpen.value = false
   else if (buyNowOpen.value) closeBuyNow()
 }
 
@@ -288,26 +229,6 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleDialogKeydow
   <Teleport to="body"><Transition name="fade"><div v-if="errorSurface === 'overlay'" class="shop-overlay-alert" role="alert"><span aria-hidden="true">!</span><div><strong>{{ errorPresentation.title }}</strong><p>{{ error }}</p></div><button type="button" aria-label="关闭错误提示" @click="error = ''">×</button></div></Transition></Teleport>
 
   <Teleport to="body"><Transition name="fade"><div v-if="selected" class="product-modal-backdrop shop-overlay" data-shop-overlay="product" @click.self="selected = null"><section class="product-modal" role="dialog" aria-modal="true" :aria-label="selected.name"><button class="modal-close" :aria-label="t('modal.close')" @click="selected = null">×</button><img :src="imageFor(selected)" :alt="selected.name" @error="recoverProductImage"><div><p class="eyebrow"><span />分类 {{ selected.categoryId }}</p><h2>{{ selected.name }}</h2><strong>{{ money(selected.price) }}</strong><p>{{ selected.description }}</p><div class="quantity-stepper"><button type="button" :disabled="productQuantity <= 1" aria-label="减少数量" @click="productQuantity--">−</button><span>{{ productQuantity }}</span><button type="button" aria-label="增加数量" @click="productQuantity++">+</button></div><div class="commerce-actions"><button class="button" @click="toggleWishlist(selected.id)">{{ wishlistIds.has(selected.id) ? t('modal.remove') : t('shop.wishlist') }}</button><button class="button button-primary" @click="addToCart(selected.id, productQuantity)">加入购物车</button></div></div></section></div></Transition></Teleport>
-
-  <Teleport to="body"><Transition name="fade"><div v-if="cartOpen" class="commerce-drawer-backdrop shop-overlay" data-shop-overlay="cart" @click.self="cartOpen = false"><aside class="commerce-drawer" role="dialog" aria-modal="true" aria-labelledby="shop-cart-title"><header><div><p class="eyebrow"><span />CART</p><h2 id="shop-cart-title">购物车</h2></div><button class="modal-close" :aria-label="t('modal.close')" @click="cartOpen = false">×</button></header>
-    <label v-if="cart.length" class="cart-select-all"><input type="checkbox" :checked="allSelected" @change="toggleSelectAll"> 全选</label>
-    <div v-if="cart.length" class="cart-lines"><article v-for="line in cart" :key="line.productId"><label class="cart-line-checkbox"><input type="checkbox" :checked="selectedCartIds.has(line.productId)" @change="toggleCartLine(line.productId)"></label><div><h3>{{ line.productName }}</h3><p>{{ money(line.unitPrice) }} × {{ line.quantity }}</p></div><strong>{{ money(line.subtotal) }}</strong><button :disabled="actionId === line.productId" @click="removeFromCart(line.productId)">移除</button></article></div>
-    <p v-else class="empty-state">购物车还是空的。</p>
-    <footer v-if="cart.length"><p><span>合计（已选 {{ selectedCartLines.length }} 件）</span><strong>{{ money(cartTotal) }}</strong></p><button class="button button-primary" :disabled="!selectedCartLines.length" @click="openCheckout">填写地址并结算</button></footer>
-  </aside></div></Transition></Teleport>
-
-  <Teleport to="body"><Transition name="fade"><div v-if="checkoutOpen" class="product-modal-backdrop shop-overlay" data-shop-overlay="checkout" @click.self="checkoutOpen = false"><section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="shop-checkout-title"><button class="modal-close" :aria-label="t('modal.close')" @click="checkoutOpen = false">×</button><p class="eyebrow"><span />CHECKOUT</p><h2 id="shop-checkout-title">确认收货信息</h2><p>订单将使用购物车中已选的 {{ selectedCartLines.length }} 件商品。</p>
-    <div v-if="addresses.length" class="address-picker">
-      <label v-for="address in addresses" :key="address.id" class="address-picker-option" :class="{ active: checkoutAddressId === address.id }">
-        <input v-model="checkoutAddressId" type="radio" name="checkout-address" :value="address.id">
-        <div><strong>{{ address.recipientName }} · {{ address.phone }}</strong><p>{{ address.addressType === 'DOMESTIC' ? `${address.city}${address.district}` : `${address.city}、${address.countryCode}` }} {{ address.addressLine1 }}</p></div>
-      </label>
-    </div>
-    <p v-else class="empty-state">还没有保存的收货地址。</p>
-    <NuxtLink to="/account/addresses" class="address-manage-link">管理收货地址 →</NuxtLink>
-    <p class="checkout-total">合计 <strong>{{ money(cartTotal) }}</strong></p>
-    <button class="button button-primary" :disabled="checkoutLoading || !checkoutAddressId" @click="submitOrder">{{ checkoutLoading ? '正在创建订单…' : '提交订单' }}</button>
-  </section></div></Transition></Teleport>
 
   <Teleport to="body"><Transition name="fade"><div v-if="buyNowOpen" class="product-modal-backdrop shop-overlay" data-shop-overlay="buy-now" @click.self="closeBuyNow"><section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="shop-buy-now-title">
     <button class="modal-close" :aria-label="t('modal.close')" @click="closeBuyNow">×</button>

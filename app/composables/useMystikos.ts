@@ -129,8 +129,10 @@ const copy: Record<Locale, Record<string, string>> = {
 }
 
 Object.assign(copy.en, {
-  'nav.companions': 'Companions', 'nav.mine': 'Mine', 'nav.bookingCart': 'Order cart', 'nav.wishlist': 'Wishlist', 'nav.wishlistEyebrow': 'WISHLIST',
+  'nav.companions': 'Companions', 'nav.mine': 'Mine', 'nav.bookingCart': 'Order cart', 'nav.bookingCartHint': 'Pending companion sessions', 'nav.bookingCartEyebrow': 'ORDER CART', 'nav.cart': 'Shopping cart', 'nav.cartEyebrow': 'CART', 'nav.wishlist': 'Wishlist', 'nav.wishlistEyebrow': 'WISHLIST',
   'nav.wishlistCount': '{count} saved', 'nav.wishlistLoading': 'Loading wishlist…', 'nav.wishlistEmpty': 'No saved items yet.', 'nav.wishlistAdded': 'Saved on {date}', 'nav.wishlistToCart': 'Add to cart', 'nav.wishlistContinue': 'Continue shopping',
+  'nav.cartCount': '{count} in cart', 'nav.cartLoading': 'Loading cart…', 'nav.cartEmpty': 'Your cart is empty.', 'nav.cartCheckout': 'Checkout', 'nav.cartContinue': 'Continue shopping', 'nav.cartSelectAll': 'Select all', 'nav.cartSelectedTotal': '{count} selected', 'nav.cartRemove': 'Remove',
+  'nav.bookingCartCount': '{count} sessions', 'nav.bookingCartLoading': 'Loading order cart…', 'nav.bookingCartEmpty': 'No companion sessions yet.', 'nav.bookingCartContinue': 'Browse companions', 'nav.bookingCartCheckout': 'Pay selected', 'nav.bookingCartCheckoutWorking': 'Preparing payment…', 'nav.bookingCartSelectedTotal': 'Total ({count} selected)', 'nav.bookingCartRemove': 'Remove', 'nav.bookingCartUnavailable': 'Currently unavailable', 'nav.bookingCartHours': '{hours} hours',
   'nav.themeHint': 'Switch light or dark', 'nav.languageHint': 'Switch interface language', 'nav.logoutHint': 'End session on this device',
   'nav.profileHome': 'Profile home', 'nav.profileHomeHint': 'Account, profile and security', 'nav.companionCard': 'Companion card', 'nav.companionCardHint': 'Edit your public card',
   'preview.badge': 'Preview', 'preview.note': 'Demo data — not connected to live APIs yet.',
@@ -142,8 +144,10 @@ Object.assign(copy.en, {
   'public.back': 'Back to companions', 'public.verified': 'Verified companion', 'public.rating': 'Member rating', 'public.sessions': 'Sessions together', 'public.response': 'Response rate', 'public.invite': 'Invite this companion', 'public.invited': 'Invitation sent · awaiting response', 'public.highlights': 'HIGHLIGHTS', 'public.highlightsTitle': 'See how we play together.', 'public.highlight': 'Highlight', 'public.defaultHighlight': 'A calm comeback in the final round', 'public.voice': 'Voice note', 'public.voiceTitle': 'Hear my voice', 'public.previousPhoto': 'Previous photo', 'public.nextPhoto': 'Next photo', 'public.viewPhoto': 'View photo {count}', 'public.photoAlt': '{name} photo {count}'
 })
 Object.assign(copy.zh, {
-  'nav.companions': '陪玩', 'nav.mine': '我的', 'nav.bookingCart': '点单车', 'nav.wishlist': '心愿单', 'nav.wishlistEyebrow': '心愿单',
+  'nav.companions': '陪玩', 'nav.mine': '我的', 'nav.bookingCart': '点单车', 'nav.bookingCartHint': '待确认的陪玩时段', 'nav.bookingCartEyebrow': '点单车', 'nav.cart': '购物车', 'nav.cartEyebrow': '购物车', 'nav.wishlist': '心愿单', 'nav.wishlistEyebrow': '心愿单',
   'nav.wishlistCount': '{count} 件收藏', 'nav.wishlistLoading': '正在读取心愿单…', 'nav.wishlistEmpty': '还没有收藏商品。', 'nav.wishlistAdded': '收藏于 {date}', 'nav.wishlistToCart': '加入购物车', 'nav.wishlistContinue': '继续逛商城',
+  'nav.cartCount': '{count} 件商品', 'nav.cartLoading': '正在读取购物车…', 'nav.cartEmpty': '购物车还是空的。', 'nav.cartCheckout': '去结算', 'nav.cartContinue': '继续逛商城', 'nav.cartSelectAll': '全选', 'nav.cartSelectedTotal': '已选 {count} 件', 'nav.cartRemove': '移除',
+  'nav.bookingCartCount': '{count} 条点单', 'nav.bookingCartLoading': '正在读取点单车…', 'nav.bookingCartEmpty': '点单车还是空的。', 'nav.bookingCartContinue': '去找陪玩', 'nav.bookingCartCheckout': '去支付', 'nav.bookingCartCheckoutWorking': '正在结算…', 'nav.bookingCartSelectedTotal': '合计（已选 {count} 条）', 'nav.bookingCartRemove': '移除', 'nav.bookingCartUnavailable': '当前不可点单', 'nav.bookingCartHours': '{hours} 小时',
   'nav.themeHint': '切换明暗主题', 'nav.languageHint': '切换界面语言', 'nav.logoutHint': '结束本机登录状态',
   'nav.profileHome': '个人资料主页', 'nav.profileHomeHint': '账号、资料与安全', 'nav.companionCard': '陪玩名片', 'nav.companionCardHint': '编辑公开在线卡片',
   'preview.badge': '预览', 'preview.note': '演示数据，尚未接入真实接口。',

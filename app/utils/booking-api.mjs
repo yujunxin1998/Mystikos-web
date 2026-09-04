@@ -15,6 +15,10 @@ export async function requireBookingLogin(authenticated, navigate) {
   return false
 }
 
+export function bookingCartLoginRedirect() {
+  return `/auth?redirect=${encodeURIComponent('/companions?openBookingCart=1')}`
+}
+
 export function createBookingApi(request) {
   return {
     createBooking: async (companionId, start, durationHours) =>

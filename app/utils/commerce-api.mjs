@@ -31,6 +31,10 @@ export function wishlistLoginRedirect() {
   return `/auth?redirect=${encodeURIComponent('/shop?openWishlist=1')}`
 }
 
+export function cartLoginRedirect() {
+  return `/auth?redirect=${encodeURIComponent('/shop?openCart=1')}`
+}
+
 export function parseCreateOrderResponse(json) {
   const preserved = json.replace(/("data"\s*:\s*)(\d{16,})(\s*[,}])/, '$1"$2"$3')
   return JSON.parse(preserved)

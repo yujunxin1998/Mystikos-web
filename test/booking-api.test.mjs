@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createBookingApi, requireBookingLogin } from '../app/utils/booking-api.mjs'
+import { createBookingApi, bookingCartLoginRedirect, requireBookingLogin } from '../app/utils/booking-api.mjs'
 
 test('点单客户端按 OpenAPI 契约发送单条点单、点单车和点单组请求', async () => {
   const calls = []
@@ -75,4 +75,8 @@ test('未登录点单操作跳转登录并停止后续请求', async () => {
   assert.equal(allowed, false)
   assert.equal(destination, '/auth?redirect=/companions')
   assert.equal(await requireBookingLogin(true, async () => assert.fail('logged-in user must not redirect')), true)
+})
+
+test('点单车登录回跳使用可清除的一次性标记', () => {
+  assert.equal(bookingCartLoginRedirect(), '/auth?redirect=%2Fcompanions%3FopenBookingCart%3D1')
 })

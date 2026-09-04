@@ -264,26 +264,61 @@
 .shop-cosmos .shop-note i { width: 6px; height: 6px; border-radius: 50%; background: #62bb91; box-shadow: 0 0 0 5px rgba(98, 187, 145, 0.1); }
 .shop-cosmos .shop-note span { display: inline; margin: 0; color: var(--shop-ink); }
 
-/* Commerce overlays share the same calmer control hierarchy without leaking to other routes. */
+/* 商城遮罩（商品弹层 / 侧栏 / 结算）统一控件层级，避免样式泄漏到其它路由。 */
 .shop-overlay.product-modal-backdrop,
-.shop-overlay.commerce-drawer-backdrop { background: rgba(6, 7, 19, 0.76); backdrop-filter: blur(10px); }
+.shop-overlay.commerce-drawer-backdrop,
+.shop-overlay.side-drawer-backdrop { background: transparent; backdrop-filter: none; }
+.shop-overlay.product-modal-backdrop::before,
+.shop-overlay.commerce-drawer-backdrop::before,
+.shop-overlay.side-drawer-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(6, 7, 19, 0.76);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
 .shop-overlay .product-modal,
 .shop-overlay .checkout-modal,
-.shop-overlay .commerce-drawer { border: 1px solid var(--line); color: var(--ink); background: color-mix(in srgb, var(--card) 96%, transparent); }
+.shop-overlay .commerce-drawer,
+.shop-overlay .side-drawer {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: var(--card);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
 .shop-overlay .product-modal,
 .shop-overlay .checkout-modal { border-radius: 20px; overflow: hidden; }
 .shop-overlay .checkout-modal { padding: 38px; }
-.shop-overlay .commerce-drawer { border-left-color: color-mix(in srgb, var(--gold) 45%, var(--line)); }
+.shop-overlay .commerce-drawer,
+.shop-overlay .side-drawer { border-left-color: color-mix(in srgb, var(--gold) 45%, var(--line)); }
 .shop-overlay .product-modal .modal-close,
 .shop-overlay .checkout-modal .modal-close,
-.shop-overlay .commerce-drawer .modal-close { border: 1px solid var(--line); color: var(--ink); background: var(--card); }
+.shop-overlay .commerce-drawer .modal-close,
+.shop-overlay .side-drawer .modal-close { border: 1px solid var(--line); color: var(--ink); background: var(--card); }
 .shop-overlay .quantity-stepper { width: max-content; display: grid; grid-template-columns: 36px 44px 36px; align-items: center; margin: 18px 0; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
 .shop-overlay .quantity-stepper button { width: 36px; height: 36px; border: 0; background: color-mix(in srgb, var(--lav) 10%, var(--card)); color: var(--ink); }
 .shop-overlay .quantity-stepper span { text-align: center; font: 700 12px var(--font-mono); }
-.shop-overlay .cart-select-all { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 10px 4px; color: var(--muted); font-size: 12px; }
-.shop-overlay .cart-line-checkbox { display: flex; align-items: center; }
-.shop-overlay .cart-lines article { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
-.shop-overlay .cart-lines article > button { grid-column: 2 / -1; }
+.shop-overlay .cart-select-all { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 0; color: var(--muted); font-size: 12px; }
+.shop-overlay .cart-line-checkbox { display: grid; place-items: center; }
+.shop-overlay .cart-lines article,
+.shop-overlay .side-drawer-lines article.has-check { grid-template-columns: auto 40px minmax(0, 1fr) auto; align-items: center; }
+.shop-overlay .side-drawer-lines article.has-thumb { grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; }
+.shop-overlay .drawer-check:checked { border-color: var(--gold); background: var(--gold); }
+.shop-overlay .drawer-remove-btn {
+  color: #b5475a;
+  border-color: color-mix(in srgb, #c45d6d 55%, var(--line));
+  background: color-mix(in srgb, #c45d6d 14%, var(--card));
+  transform: none;
+}
+.shop-overlay .drawer-remove-btn:hover:not(:disabled) {
+  color: #9a3348;
+  transform: none;
+}
 .shop-overlay .address-picker { display: grid; gap: 10px; max-height: 220px; overflow-y: auto; margin: 16px 0; }
 .shop-overlay .address-picker-option { display: flex !important; gap: 11px; align-items: flex-start; margin: 0 !important; padding: 13px; border: 1px solid var(--line); border-radius: 13px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
 .shop-overlay .address-picker-option:hover { border-color: var(--lav-deep); }

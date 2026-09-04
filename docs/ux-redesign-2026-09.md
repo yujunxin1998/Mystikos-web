@@ -31,9 +31,9 @@
 - [x] Logo：继续使用现有 `BrandLogo`，不换图、不改品牌资源
 - [x] 主导航仅三条：`陪玩` → `/companions`，`商城` → `/shop`，`我的` → `/profile`（未登录 → `/auth`）
 - [x] 移除顶栏：`首页` 文案链、`会员体系` 锚点、独立「退出登录」文字按钮
-- [x] 右侧保留：心愿单 ♡、点单车入口（登录可见）、头像
+- [x] 右侧保留：心愿单 ♡、购物车、点单车（日历图标）统一侧栏入口、头像
 - [x] 主题 / 语言 / 退出：收入头像下拉，逻辑仍走现有 `toggleTheme` / `toggleLocale` / logout confirm
-- [x] 心愿单抽屉、点单车路由、认证 Cookie/代理：**接口调用不变**
+- [x] 心愿单 / 购物车 / 点单车侧栏共用 `SideDrawer`；认证 Cookie/代理与业务接口路径不变
 
 ### 首页（对标首页简化图）
 
@@ -73,7 +73,7 @@
 
 - **状态**：已完成
 - **文件**：`app/components/SiteHeader.vue`、`app/composables/useMystikos.ts`、`app/assets/css/main.css`
-- **验收**：登录、心愿单拉数、点单车进入、退出确认正常；对照 `mystikos-nav-compare.png`「建议」侧
+- **验收**：登录、心愿单拉数、购物车打开、头像菜单进入点单车、退出确认正常；对照 `mystikos-nav-compare.png`「建议」侧
 
 ### 阶段 2 — 首页减负
 

@@ -43,7 +43,7 @@ test('商城弹层焦点在首尾之间循环', () => {
 
 test('商城弹层共享控件样式全部限制在商城遮罩内', async () => {
   const css = await readFile(new URL('../app/assets/css/shop.css', import.meta.url), 'utf8')
-  const sharedClasses = ['product-modal-backdrop', 'commerce-drawer-backdrop', 'product-modal', 'checkout-modal', 'commerce-drawer', 'quantity-stepper', 'cart-select-all', 'cart-line-checkbox', 'cart-lines', 'address-picker', 'address-picker-option', 'address-manage-link']
+  const sharedClasses = ['product-modal-backdrop', 'commerce-drawer-backdrop', 'side-drawer-backdrop', 'product-modal', 'checkout-modal', 'commerce-drawer', 'side-drawer', 'quantity-stepper', 'cart-select-all', 'cart-line-checkbox', 'cart-lines', 'address-picker', 'address-picker-option', 'address-manage-link']
   const selectors = [...css.matchAll(/(^|\n)([^@\n][^{}]*)\{/g)].map(match => match[2].trim())
   const leaked = selectors.filter(selector => sharedClasses.some(name => selector.includes(`.${name}`)) && !selector.includes('.shop-overlay'))
   assert.deepEqual(leaked, [])

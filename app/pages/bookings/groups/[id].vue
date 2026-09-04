@@ -68,7 +68,7 @@ onBeforeUnmount(() => { if (countdownTimer) clearInterval(countdownTimer) })
 
 <template>
   <section class="commerce-order-page section-wrap">
-    <NuxtLink to="/bookings/cart" class="commerce-back">← 返回点单车</NuxtLink>
+    <NuxtLink to="/companions?openBookingCart=1" class="commerce-back">← 返回点单车</NuxtLink>
     <p v-if="loading" class="empty-state">正在读取点单组…</p>
     <p v-else-if="error && !group" class="commerce-alert" role="alert">{{ error }}</p>
     <template v-else-if="group">

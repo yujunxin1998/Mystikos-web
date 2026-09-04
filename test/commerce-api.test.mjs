@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCommerceApi, openCommerceCheckout, parseCreateOrderResponse, requireCommerceLogin, summarizeWishlist, wishlistLoginRedirect } from '../app/utils/commerce-api.mjs'
+import { createCommerceApi, cartLoginRedirect, openCommerceCheckout, parseCreateOrderResponse, requireCommerceLogin, summarizeWishlist, wishlistLoginRedirect } from '../app/utils/commerce-api.mjs'
 
 test('商城客户端按 OpenAPI 契约发送全部商品、购物车、心愿单、地址簿和订单请求', async () => {
   const calls = []
@@ -93,6 +93,10 @@ test('未登录商城操作跳转登录并停止后续请求', async () => {
 
 test('心愿单登录回跳使用可清除的一次性标记而不是持久 hash', () => {
   assert.equal(wishlistLoginRedirect(), '/auth?redirect=%2Fshop%3FopenWishlist%3D1')
+})
+
+test('购物车登录回跳使用可清除的一次性标记', () => {
+  assert.equal(cartLoginRedirect(), '/auth?redirect=%2Fshop%3FopenCart%3D1')
 })
 
 test('雪花订单号在详情、取消、支付和地址路径中保持原始精度', async () => {
