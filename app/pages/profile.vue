@@ -143,6 +143,28 @@ onMounted(async () => {
 })
 
 const walletAction = (action: 'topup' | 'withdraw') => { notice.value = t(action === 'topup' ? 'profile.topupNotice' : 'profile.withdrawNotice') }
+const walletMeta = computed(() => locale.value === 'zh'
+  ? [
+      { label: '冻结中', value: '$0.00' },
+      { label: '本月消费', value: '$86.00' },
+      { label: '钱包状态', value: '预览' }
+    ]
+  : [
+      { label: 'On hold', value: '$0.00' },
+      { label: 'Spent this month', value: '$86.00' },
+      { label: 'Wallet status', value: 'Preview' }
+    ])
+const orderStatusLabel = (status: string) => {
+  if (locale.value !== 'zh') return status
+  if (status === 'Complete') return '已完成'
+  return status
+}
+const orderRoleLabel = (role: string) => {
+  if (locale.value !== 'zh') return role
+  if (role === 'Companion') return '陪玩'
+  if (role === 'Boss') return '老板'
+  return role
+}
 const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legends', person: 'Mika Sol', role: 'Companion', duration: '2h 30m', amount: '$40.00', status: 'Complete' }, { id: '#MK-23991', date: 'Aug 14, 2026', game: 'Counter-Strike 2', person: 'Noah Ryn', role: 'Companion', duration: '1h 45m', amount: '$35.00', status: 'Complete' }, { id: '#MK-23876', date: 'Aug 08, 2026', game: 'VALORANT', person: 'Ari Vale', role: 'Boss', duration: '3h 00m', amount: '$54.00', status: 'Complete' }]
 </script>
 
@@ -238,18 +260,78 @@ const orders = [{ id: '#MK-24108', date: 'Aug 19, 2026', game: 'League of Legend
     </section>
 
     <section v-show="activeTab === 'orders'" class="profile-tab-panel profile-section profile-celestial-panel orders-section">
-      <div class="profile-section-heading">
-        <div><p class="eyebrow"><span />{{ t('profile.ordersEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p><h2>{{ t('profile.orders') }}</h2></div>
-        <span>{{ t('profile.ordersHint') }}</span>
+      <header class="orders-head">
+        <div>
+          <p class="eyebrow"><span />{{ t('profile.ordersEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p>
+          <h2>{{ t('profile.orders') }}</h2>
+          <p class="preview-note">{{ t('profile.demoNote') }}</p>
+        </div>
+        <p class="orders-head-hint">{{ t('profile.ordersHint') }}</p>
+      </header>
+
+      <div class="orders-ledger">
+        <article v-for="order in orders" :key="order.id" class="order-card">
+          <div class="order-card-primary">
+            <div class="order-id-block">
+              <strong>{{ order.id }}</strong>
+              <small>{{ order.date }}</small>
+            </div>
+            <div class="order-session-block">
+              <strong>{{ order.game }}</strong>
+              <small>{{ orderRoleLabel(order.role) }} · {{ order.person }}</small>
+            </div>
+          </div>
+          <div class="order-card-aside">
+            <div class="order-stat">
+              <span>{{ t('profile.duration') }}</span>
+              <b>{{ order.duration }}</b>
+            </div>
+            <div class="order-stat">
+              <span>{{ t('profile.total') }}</span>
+              <b>{{ order.amount }}</b>
+            </div>
+            <em class="order-status">{{ orderStatusLabel(order.status) }}</em>
+          </div>
+        </article>
       </div>
-      <p class="preview-note">{{ t('profile.demoNote') }}</p>
-      <div class="orders-table"><div class="order-row order-head"><span>{{ t('profile.order') }}</span><span>{{ t('profile.session') }}</span><span>{{ t('profile.duration') }}</span><span>{{ t('profile.total') }}</span><span>{{ t('profile.status') }}</span></div><article v-for="order in orders" :key="order.id" class="order-row"><div><strong>{{ order.id }}</strong><small>{{ order.date }}</small></div><div><strong>{{ order.game }}</strong><small>{{ order.role }} · {{ order.person }}</small></div><span>{{ order.duration }}</span><strong>{{ order.amount }}</strong><em>{{ order.status }}</em></article></div>
     </section>
 
     <section v-show="activeTab === 'wallet'" class="profile-tab-panel profile-section profile-celestial-panel wallet-section">
-      <div class="profile-section-heading"><div><p class="eyebrow"><span />{{ t('profile.walletEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p><h2>{{ t('profile.wallet') }}</h2></div><span>{{ t('profile.available') }}</span></div>
-      <p class="preview-note">{{ t('profile.demoNote') }}</p>
-      <div class="wallet-card"><div><small>{{ t('profile.available') }}</small><strong class="wallet-balance">$128.50</strong></div><div class="wallet-actions"><button class="button button-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span>→</span></button><button class="button button-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span>→</span></button></div></div>
+      <header class="wallet-head">
+        <div>
+          <p class="eyebrow"><span />{{ t('profile.walletEyebrow') }} <em class="preview-badge">{{ t('profile.demoBadge') }}</em></p>
+          <h2>{{ t('profile.wallet') }}</h2>
+          <p class="preview-note">{{ t('profile.demoNote') }}</p>
+        </div>
+      </header>
+
+      <div class="wallet-ledger">
+        <article class="wallet-card" aria-label="Mystikos wallet">
+          <div class="wallet-card-ornament" aria-hidden="true">
+            <i /><i /><i />
+          </div>
+          <div class="wallet-card-copy">
+            <div class="wallet-card-top">
+              <span class="wallet-brand">{{ locale === 'zh' ? 'Mystikos 星群钱包' : 'Mystikos wallet' }}</span>
+              <span class="wallet-currency">USD</span>
+            </div>
+            <p class="wallet-label">{{ t('profile.available') }}</p>
+            <strong class="wallet-balance">$128.50</strong>
+          </div>
+          <div class="wallet-actions">
+            <button type="button" class="wallet-btn wallet-btn-primary" @click="walletAction('topup')">{{ t('profile.topup') }} <span aria-hidden="true">→</span></button>
+            <button type="button" class="wallet-btn wallet-btn-ghost" @click="walletAction('withdraw')">{{ t('profile.withdraw') }} <span aria-hidden="true">→</span></button>
+          </div>
+        </article>
+
+        <div class="wallet-meta">
+          <div v-for="item in walletMeta" :key="item.label" class="wallet-meta-tile">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+        </div>
+      </div>
+
       <p v-if="notice" class="wallet-notice" role="status">{{ notice }}</p>
     </section>
 
