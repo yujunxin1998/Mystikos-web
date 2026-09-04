@@ -55,3 +55,8 @@ test('弹层内商城操作失败时把错误提示显示在遮罩上方', () =>
   assert.equal(presentation.shopErrorSurface?.('创建订单失败', false, 'checkout'), 'overlay')
   assert.equal(presentation.shopErrorSurface?.('心愿单更新失败', false, ''), 'page')
 })
+
+test('商品目录可用时忽略登录附属数据预加载失败', () => {
+  assert.equal(presentation.shouldIgnoreMemberCommercePreloadError?.(true), true)
+  assert.equal(presentation.shouldIgnoreMemberCommercePreloadError?.(false), false)
+})

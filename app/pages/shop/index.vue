@@ -56,11 +56,15 @@ const loadProducts = async () => {
 
 const loadMemberCommerce = async () => {
   if (!authenticated.value) { clearWishlist(); cart.value = []; selectedCartIds.value = new Set(); return }
-  try {
-    const [, nextCart] = await Promise.all([refreshWishlist(), api.getCart(), refreshAddresses()])
-    cart.value = nextCart || []
+  // 心愿单 / 购物车 / 地址是登录后的附属数据；任一失败不应挡住商品浏览页。
+  const [, cartResult] = await Promise.allSettled([refreshWishlist(), api.getCart(), refreshAddresses()])
+  if (cartResult.status === 'fulfilled') {
+    cart.value = cartResult.value || []
     selectedCartIds.value = new Set(cart.value.map(line => line.productId))
-  } catch (cause) { error.value = cause instanceof Error ? cause.message : '商城账户数据加载失败' }
+    return
+  }
+  cart.value = []
+  selectedCartIds.value = new Set()
 }
 
 const openProduct = async (productId: number) => {

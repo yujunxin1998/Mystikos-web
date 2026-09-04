@@ -31,3 +31,7 @@ export const shopErrorSurface = (error, productLoadFailed, activeOverlayKey) => 
   if (!productLoadFailed && activeOverlayKey) return 'overlay'
   return 'page'
 }
+
+/** 登录后预拉心愿单/购物车/地址失败时，不打断商品列表展示。 */
+export const shouldIgnoreMemberCommercePreloadError = productCatalogReady => Boolean(productCatalogReady)
+
