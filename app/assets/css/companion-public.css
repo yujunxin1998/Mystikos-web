@@ -41,3 +41,186 @@
 .directory-search input::-webkit-search-results-button{display:none;-webkit-appearance:none}
 .directory-results{padding-top:28px}
 .directory-heading{margin-bottom:20px}
+
+/* 陪玩清单：横向名录卡，避免竖版大海报在无封面时显得空与散 */
+.directory-results{padding-top:20px}
+.directory-heading{margin-bottom:14px;align-items:baseline}
+.directory-heading h2{font-size:clamp(26px,2.8vw,34px);letter-spacing:-.04em}
+.directory-heading p{font-size:12px;letter-spacing:.06em}
+.directory-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.directory-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--line) 88%,transparent);
+  border-radius:12px;
+  background:var(--card);
+  box-shadow:none;
+  transition:border-color .2s,background .2s;
+}
+.directory-card>a,
+.directory-card-link{
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr);
+  align-items:stretch;
+  min-height:124px;
+  height:auto;
+  color:inherit;
+  text-decoration:none;
+}
+.directory-card:hover{
+  transform:none;
+  border-color:color-mix(in srgb,var(--gold) 42%,var(--line));
+  background:color-mix(in srgb,var(--card) 94%,var(--gold) 6%);
+}
+.directory-media{
+  position:relative;
+  height:auto;
+  min-height:124px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-right:1px solid color-mix(in srgb,var(--line) 80%,transparent);
+  background:
+    linear-gradient(160deg,color-mix(in srgb,var(--companion-accent) 18%,var(--card)),var(--card) 62%);
+}
+.directory-media:after{display:none;content:none}
+.directory-media.has-media{
+  background:color-mix(in srgb,var(--night-soft) 35%,var(--card));
+}
+.directory-portrait-mark,
+.directory-media>span{
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border:1px solid color-mix(in srgb,var(--line) 70%,var(--companion-accent));
+  border-radius:50%;
+  background:color-mix(in srgb,var(--card) 70%,var(--companion-accent) 30%);
+  color:var(--ink);
+  font:600 18px/1 var(--font-serif);
+  letter-spacing:-.02em;
+  text-shadow:none;
+  box-shadow:none;
+}
+.directory-favorite{
+  position:absolute;
+  z-index:2;
+  top:10px;
+  right:10px;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:color-mix(in srgb,var(--card) 88%,transparent);
+  color:var(--muted);
+  font-size:14px;
+  line-height:1;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.directory-favorite:hover{
+  transform:none;
+  border-color:color-mix(in srgb,var(--gold) 50%,var(--line));
+  color:var(--ink);
+}
+.directory-favorite.saved{
+  border-color:color-mix(in srgb,var(--gold) 55%,var(--line));
+  background:color-mix(in srgb,var(--gold) 16%,var(--card));
+  color:var(--gold);
+}
+.directory-card-body{
+  display:grid;
+  align-content:center;
+  gap:6px;
+  min-width:0;
+  padding:14px 42px 14px 14px;
+}
+.directory-card-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.directory-card-body h3{
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font:600 17px/1.2 var(--font-serif);
+  letter-spacing:-.03em;
+}
+.directory-status{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  flex:0 0 auto;
+  max-width:42%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--muted);
+  font:500 11px/1 var(--font-mono);
+}
+.directory-status i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#66c8a1;
+}
+.directory-card-body>p{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:1;
+  overflow:hidden;
+  min-height:0;
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+.directory-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin:0;
+}
+.directory-tags span{
+  padding:3px 8px;
+  border:1px solid color-mix(in srgb,var(--line) 85%,transparent);
+  border-radius:999px;
+  background:transparent;
+  color:var(--muted);
+  font:500 11px/1.2 var(--font-sans);
+}
+.directory-card footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:4px 0 0;
+  padding:8px 0 0;
+  border-top:1px solid color-mix(in srgb,var(--line) 75%,transparent);
+  color:var(--muted);
+  font-size:12px;
+}
+.directory-card footer b{
+  color:var(--ink);
+  font:600 12px/1 var(--font-sans);
+}
+.directory-card:hover footer b{color:var(--gold)}
+@media(max-width:960px){
+  .directory-grid{grid-template-columns:1fr;gap:10px}
+}
+@media(max-width:720px){
+  .directory-card-link,
+  .directory-card>a{grid-template-columns:96px minmax(0,1fr);min-height:112px}
+  .directory-media{min-height:112px}
+  .directory-card-body{padding:12px 38px 12px 12px}
+  .directory-card-body h3{font-size:16px}
+}
